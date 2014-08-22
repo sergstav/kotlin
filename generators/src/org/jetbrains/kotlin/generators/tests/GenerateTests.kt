@@ -143,6 +143,7 @@ import org.jetbrains.kotlin.codegen.AbstractLineNumberTest
 import org.jetbrains.kotlin.completion.handlers.AbstractKeywordCompletionHandlerTest
 import org.jetbrains.kotlin.idea.kdoc.AbstractKDocHighlightingTest
 import org.jetbrains.kotlin.addImport.AbstractAddImportTest
+import org.jetbrains.jet.lang.resolve.android.AbstractAndroidXml2KConversionTest
 
 fun main(args: Array<String>) {
     System.setProperty("java.awt.headless", "true")
@@ -313,6 +314,11 @@ fun main(args: Array<String>) {
 
         testClass(javaClass<AbstractLocalClassProtoTest>()) {
             model("serialization/local")
+        }
+        
+        testClass(javaClass<AbstractAndroidXml2KConversionTest>()) {
+            model("android/converter/simple", recursive = false, extension = null)
+            model("android/converter/exceptions", recursive = false, extension = null, testMethod = "doNoManifestTest")
         }
     }
 
