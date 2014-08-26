@@ -144,6 +144,8 @@ import org.jetbrains.kotlin.completion.handlers.AbstractKeywordCompletionHandler
 import org.jetbrains.kotlin.idea.kdoc.AbstractKDocHighlightingTest
 import org.jetbrains.kotlin.addImport.AbstractAddImportTest
 import org.jetbrains.jet.lang.resolve.android.AbstractAndroidXml2KConversionTest
+import org.jetbrains.jet.android.AbstractCrossParserTest
+import org.jetbrains.jet.lang.resolve.android.AbstractAndroidBoxTest
 
 fun main(args: Array<String>) {
     System.setProperty("java.awt.headless", "true")
@@ -319,6 +321,10 @@ fun main(args: Array<String>) {
         testClass(javaClass<AbstractAndroidXml2KConversionTest>()) {
             model("android/converter/simple", recursive = false, extension = null)
             model("android/converter/exceptions", recursive = false, extension = null, testMethod = "doNoManifestTest")
+        }
+
+        testClass(javaClass<AbstractAndroidBoxTest>()) {
+            model("codegen/android", recursive = false, extension = null)
         }
     }
 
@@ -688,6 +694,9 @@ fun main(args: Array<String>) {
 
         testClass(javaClass<AbstractReferenceResolveTest>(), "org.jetbrains.kotlin.idea.kdoc.KdocResolveTestGenerated") {
             model("kdoc/resolve")
+        
+        testClass(javaClass<AbstractCrossParserTest>()) {
+            model("android/crossParser", recursive = false, extension = null)
         }
 
         testClass(javaClass<AbstractKDocHighlightingTest>()) {
