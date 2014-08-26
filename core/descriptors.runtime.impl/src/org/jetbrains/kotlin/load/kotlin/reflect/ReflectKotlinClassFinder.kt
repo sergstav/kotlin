@@ -26,12 +26,7 @@ public class ReflectKotlinClassFinder(private val classLoader: ClassLoader) : Ko
     private fun findKotlinClass(fqName: String): KotlinJvmBinaryClass? {
         val klass = classLoader.tryLoadClass(fqName)
         if (klass == null) return null
-        return try {
-            ReflectKotlinClass(klass)
-        }
-        catch (e: ReflectKotlinClass.NotAKotlinClass) {
-            null
-        }
+        return ReflectKotlinClass.create(klass)
     }
 
     override fun findKotlinClass(classId: ClassId) = findKotlinClass(classId.toRuntimeFqName())
