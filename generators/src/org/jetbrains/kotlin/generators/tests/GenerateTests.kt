@@ -324,7 +324,8 @@ fun main(args: Array<String>) {
         }
 
         testClass(javaClass<AbstractAndroidBoxTest>()) {
-            model("codegen/android", recursive = false, extension = null)
+            model("codegen/android", recursive = false, extension = null, testMethod = "doCompileAgainstAndroidSdkTest")
+            model("codegen/android", recursive = false, extension = null, testMethod = "doFakeInvocationTest", testClassName = "Invoke")
         }
     }
 
