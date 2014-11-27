@@ -19,8 +19,15 @@ package org.jetbrains.kotlin.codegen;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.kotlin.backend.common.CodegenUtil;
+import org.jetbrains.kotlin.codegen.inline.FileMapping;
+import org.jetbrains.kotlin.codegen.inline.SMAPBuilder;
+import org.jetbrains.kotlin.psi.JetElement;
 import org.jetbrains.kotlin.resolve.jvm.diagnostics.JvmDeclarationOrigin;
 import org.jetbrains.org.objectweb.asm.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class AbstractClassBuilder implements ClassBuilder {
     protected static final MethodVisitor EMPTY_METHOD_VISITOR = new MethodVisitor(Opcodes.ASM5) {};
@@ -28,7 +35,11 @@ public abstract class AbstractClassBuilder implements ClassBuilder {
 
     private String thisName;
 
+    private final List<FileMapping> fileMappings = new ArrayList<FileMapping>();
+
     private final JvmSerializationBindings serializationBindings = new JvmSerializationBindings();
+    private String sourceName;
+    private int lineCountInOriginalFile;
 
     public static class Concrete extends AbstractClassBuilder {
         private final ClassVisitor v;
@@ -92,6 +103,9 @@ public abstract class AbstractClassBuilder implements ClassBuilder {
 
     @Override
     public void done() {
+        if (sourceName != null) {
+            getVisitor().visitSource(sourceName, new SMAPBuilder(sourceName, "test/" + sourceName, fileMappings, lineCountInOriginalFile).build());
+        }
         getVisitor().visitEnd();
     }
 
@@ -110,8 +124,11 @@ public abstract class AbstractClassBuilder implements ClassBuilder {
     }
 
     @Override
-    public void visitSource(@NotNull String name, @Nullable String debug) {
-        getVisitor().visitSource(name, debug);
+    public void visitSource(@NotNull String name, @Nullable String debug, @NotNull JetElement declaration) {
+        sourceName = name;
+        Integer lineCount = CodegenUtil.getLineNumberForElement(declaration, true);
+        assert lineCount != null : "Can't determine line count in " + declaration;
+        this.lineCountInOriginalFile = lineCount;
     }
 
     @Override
@@ -129,5 +146,10 @@ public abstract class AbstractClassBuilder implements ClassBuilder {
     public String getThisName() {
         assert thisName != null : "This name isn't set";
         return thisName;
+    }
+
+    @Override
+    public void addSMAP(FileMapping mapping) {
+        fileMappings.add(mapping);
     }
 }
