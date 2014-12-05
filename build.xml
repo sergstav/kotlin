@@ -741,6 +741,25 @@
         </new-kotlinc>
     </target>
 
+    <target name="core">
+        <new-kotlinc output="${output}/classes/core">
+            <src>
+                <include name="core/descriptor.loader.java/src"/>
+                <include name="core/descriptors/src"/>
+                <include name="core/descriptors.runtime.impl/src"/>
+                <include name="core/serialization/src"/>
+                <include name="core/serialization.jvm/src"/>
+                <include name="core/util.runtime/src"/>
+            </src>
+            <class-path>
+                <pathelement path="${output.relative}/classes/builtins"/>
+                <pathelement path="${output.relative}/classes/stdlib"/>
+                <pathelement path="ideaSDK/lib/protobuf-2.5.0.jar"/>
+                <pathelement path="lib/javax.inject.jar"/>
+            </class-path>
+        </new-kotlinc>
+    </target>
+
     <target name="reflection">
         <new-kotlinc output="${output}/classes/reflection">
             <src>
@@ -749,6 +768,8 @@
             <class-path>
                 <pathelement path="${output.relative}/classes/builtins"/>
                 <pathelement path="${output.relative}/classes/stdlib"/>
+                <pathelement path="${output.relative}/classes/core"/>
+                <pathelement path="ideaSDK/lib/protobuf-2.5.0.jar"/>
             </class-path>
         </new-kotlinc>
     </target>
@@ -779,6 +800,9 @@
         <do-pack-runtime jar-name="kotlin-runtime.jar" implementation-title="${manifest.impl.title.kotlin.jvm.runtime}">
             <reflection-classes>
                 <fileset dir="${output}/classes/reflection"/>
+                <fileset dir="${output}/classes/core"/>
+                <zipfileset src="ideaSDK/lib/protobuf-2.5.0.jar"/>
+                <zipfileset dir="${output}/builtins"/>
             </reflection-classes>
         </do-pack-runtime>
 
@@ -815,6 +839,12 @@
                                  implementation-title="${manifest.impl.title.kotlin.jvm.runtime.sources}">
             <reflection-sources>
                 <fileset dir="${basedir}/core/reflection.jvm/src" includes="**/*"/>
+                <fileset dir="${basedir}/core/descriptor.loader.java/src" includes="**/*"/>
+                <fileset dir="${basedir}/core/descriptors/src" includes="**/*"/>
+                <fileset dir="${basedir}/core/descriptors.runtime.impl/src" includes="**/*"/>
+                <fileset dir="${basedir}/core/serialization/src" includes="**/*"/>
+                <fileset dir="${basedir}/core/serialization.jvm/src" includes="**/*"/>
+                <fileset dir="${basedir}/core/util.runtime/src" includes="**/*"/>
             </reflection-sources>
         </do-pack-runtime-sources>
 
@@ -823,7 +853,7 @@
     </target>
 
     <target name="runtime"
-            depends="builtins,stdlib,reflection,pack-runtime,pack-runtime-sources"/>
+            depends="builtins,stdlib,core,reflection,pack-runtime,pack-runtime-sources"/>
 
     <target name="dist"
             depends="clean,init,prepare-dist,preloader,serialize-builtins,compiler,compiler-sources,ant-tools,jdk-annotations,android-sdk-annotations,runtime,kotlin-js-stdlib"
