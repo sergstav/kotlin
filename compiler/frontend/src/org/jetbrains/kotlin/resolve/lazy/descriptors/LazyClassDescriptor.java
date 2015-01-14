@@ -44,6 +44,7 @@ import org.jetbrains.kotlin.resolve.lazy.ResolveSession;
 import org.jetbrains.kotlin.resolve.lazy.ScopeProvider;
 import org.jetbrains.kotlin.resolve.lazy.data.JetClassInfoUtil;
 import org.jetbrains.kotlin.resolve.lazy.data.JetClassLikeInfo;
+import org.jetbrains.kotlin.resolve.lazy.data.JetClassOrObjectInfo;
 import org.jetbrains.kotlin.resolve.lazy.data.SyntheticClassObjectInfo;
 import org.jetbrains.kotlin.resolve.lazy.declarations.ClassMemberDeclarationProvider;
 import org.jetbrains.kotlin.resolve.scopes.*;
@@ -60,7 +61,6 @@ import java.util.*;
 
 import static org.jetbrains.kotlin.diagnostics.Errors.CLASS_OBJECT_NOT_ALLOWED;
 import static org.jetbrains.kotlin.diagnostics.Errors.TYPE_PARAMETERS_IN_ENUM;
-import static org.jetbrains.kotlin.name.SpecialNames.getClassObjectName;
 import static org.jetbrains.kotlin.resolve.DescriptorUtils.isSyntheticClassObject;
 import static org.jetbrains.kotlin.resolve.ModifiersChecker.*;
 import static org.jetbrains.kotlin.resolve.source.SourcePackage.toSourceElement;
@@ -270,6 +270,7 @@ public class LazyClassDescriptor extends ClassDescriptorBase implements ClassDes
         thisScope.setImplicitReceiver(this.getThisAsReceiverParameter());
         thisScope.changeLockLevel(WritableScope.LockLevel.READING);
 
+        //TODO:
         ClassDescriptor classObject = getClassObjectDescriptor();
         JetScope classObjectAdapterScope = (classObject != null) ? new ClassObjectMixinScope(classObject) : JetScope.Empty.INSTANCE$;
 
@@ -381,8 +382,28 @@ public class LazyClassDescriptor extends ClassDescriptorBase implements ClassDes
     @Nullable
     private LazyClassDescriptor computeClassObjectDescriptor(@Nullable JetClassObject classObject) {
         JetClassLikeInfo classObjectInfo = getClassObjectInfo(classObject);
-        if (classObjectInfo != null) {
-            return new LazyClassDescriptor(resolveSession, this, getClassObjectName(getName()), classObjectInfo);
+        //TODO_R: would be nice to kotlinize
+        if (classObjectInfo instanceof JetClassOrObjectInfo) {
+            Name name = ((JetClassOrObjectInfo) classObjectInfo).getName();
+            //TODO_R:
+            assert name != null;
+            ClassifierDescriptor classObjectDescriptor = getScopeForMemberLookup().getClassifier(name);
+            if (classObjectDescriptor instanceof LazyClassDescriptor) {
+                return (LazyClassDescriptor) classObjectDescriptor;
+            }
+            else {
+                return null;
+            }
+        }
+        //TODO_R: use isObject isClassObject
+        if (getKind() == ClassKind.CLASS_OBJECT || getKind() == ClassKind.OBJECT) {
+            return this;
+        }
+        //TODO_R: do better
+        if (getKind() == ClassKind.ENUM_ENTRY) {
+            DeclarationDescriptor containingDeclaration = getContainingDeclaration();
+            assert containingDeclaration instanceof ClassDescriptor && ((ClassDescriptor) containingDeclaration).getKind() == ClassKind.ENUM_CLASS;
+            return (LazyClassDescriptor) containingDeclaration;
         }
         return null;
     }
@@ -395,9 +416,6 @@ public class LazyClassDescriptor extends ClassDescriptorBase implements ClassDes
             }
 
             return JetClassInfoUtil.createClassLikeInfo(classObject.getObjectDeclaration());
-        }
-        else if (getKind() == ClassKind.OBJECT || getKind() == ClassKind.ENUM_ENTRY) {
-            return new SyntheticClassObjectInfo(originalClassInfo, this);
         }
 
         return null;
@@ -460,6 +478,7 @@ public class LazyClassDescriptor extends ClassDescriptorBase implements ClassDes
 
     private void doForceResolveAllContents() {
         resolveMemberHeaders();
+        //TODO:
         ClassDescriptor classObjectDescriptor = getClassObjectDescriptor();
         if (classObjectDescriptor != null) {
             ForceResolveUtil.forceResolveAllContents(classObjectDescriptor);

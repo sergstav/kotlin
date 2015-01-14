@@ -23,7 +23,7 @@ public class SpecialNames {
     public static final Name NO_NAME_PROVIDED = Name.special("<no name provided>");
     public static final Name ROOT_PACKAGE = Name.special("<root package>");
 
-    private static final String CLASS_OBJECT_FOR = "<class-object-for-";
+    public static final Name DEFAULT_NAME_FOR_DEFAULT_OBJECT = Name.identifier("Default");
 
     // This name is used as a key for the case when something has no name _due to a syntactic error_
     // Example: fun (x: Int) = 5
@@ -36,13 +36,10 @@ public class SpecialNames {
         return name != null && !name.isSpecial() ? name : SAFE_IDENTIFIER_FOR_NO_NAME;
     }
 
+    //TODO_R: should go away
     @NotNull
-    public static Name getClassObjectName(@NotNull Name className) {
-        return Name.special(CLASS_OBJECT_FOR + className.asString() + ">");
-    }
-
-    public static boolean isClassObjectName(@NotNull Name name) {
-        return name.isSpecial() && name.asString().startsWith(CLASS_OBJECT_FOR);
+    public static Name getClassObjectName() {
+        return DEFAULT_NAME_FOR_DEFAULT_OBJECT;
     }
 
     private SpecialNames() {}
