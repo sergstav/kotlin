@@ -148,13 +148,17 @@ private fun buildDecompiledText(packageFqName: FqName, descriptors: List<Declara
                 var firstPassed = false
                 val subindent = indent + "    "
                 val classObject = descriptor.getClassObjectDescriptor()
-                if (classObject != null && !isSyntheticClassObject(classObject)) {
+                //TODO_R: solve the problem more meaningfully
+                if (classObject != null && !descriptor.getKind().isSingleton() && !isSyntheticClassObject(classObject)) {
                     firstPassed = true
                     builder.append(subindent)
                     appendDescriptor(classObject, subindent)
                 }
                 for (member in descriptor.getDefaultType().getMemberScope().getDescriptors()) {
                     if (member.getContainingDeclaration() != descriptor) {
+                        continue
+                    }
+                    if (member == classObject) {
                         continue
                     }
                     if (member is CallableMemberDescriptor
