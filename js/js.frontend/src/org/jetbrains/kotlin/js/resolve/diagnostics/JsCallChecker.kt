@@ -19,9 +19,11 @@ package org.jetbrains.kotlin.resolve.diagnostics
 import com.google.gwt.dev.js.AbortParsingException
 import com.google.gwt.dev.js.rhino.*
 import com.google.gwt.dev.js.rhino.Utils.*
+import org.jetbrains.annotations.TestOnly
+import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.descriptors.CallableDescriptor
 import org.jetbrains.kotlin.descriptors.SimpleFunctionDescriptor
-import org.jetbrains.kotlin.diagnostics.DiagnosticFactory2
+import org.jetbrains.kotlin.diagnostics.DiagnosticFactory3
 import org.jetbrains.kotlin.diagnostics.DiagnosticSink
 import org.jetbrains.kotlin.diagnostics.ParametrizedDiagnostic
 import org.jetbrains.kotlin.js.patterns.DescriptorPredicate
@@ -29,11 +31,15 @@ import org.jetbrains.kotlin.js.patterns.PatternBuilder
 import org.jetbrains.kotlin.js.resolve.diagnostics.ErrorsJs
 import org.jetbrains.kotlin.psi.JetCallExpression
 import org.jetbrains.kotlin.psi.JetExpression
+import org.jetbrains.kotlin.psi.JetLiteralStringTemplateEntry
 import org.jetbrains.kotlin.psi.JetStringTemplateExpression
 import org.jetbrains.kotlin.resolve.BindingContext
+import org.jetbrains.kotlin.resolve.BindingTrace
 import org.jetbrains.kotlin.resolve.calls.checkers.CallChecker
 import org.jetbrains.kotlin.resolve.calls.context.BasicCallResolutionContext
 import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall
+import org.jetbrains.kotlin.resolve.constants.evaluate.ConstantExpressionEvaluator
+import org.jetbrains.kotlin.types.JetType
 
 import com.intellij.openapi.util.TextRange
 import java.io.StringReader
@@ -70,21 +76,23 @@ public class JsCallChecker : CallChecker {
             argument: JetExpression,
             context: BasicCallResolutionContext
     ): Boolean {
-        if (argument !is JetStringTemplateExpression) {
+        val stringType = KotlinBuiltIns.getInstance().getStringType()
+        val evaluationResult = ConstantExpressionEvaluator.evaluate(argument, context.trace, stringType)
+
+        if (evaluationResult == null) {
             context.trace.report(ErrorsJs.JSCODE_ARGUMENT_SHOULD_BE_LITERAL.on(argument))
-            return false
         }
 
-        return true
+        return evaluationResult != null
     }
 
     fun checkSyntax(
             argument: JetExpression,
             context: BasicCallResolutionContext
     ): Boolean {
-        val bindingContext = context.trace.getBindingContext()
-        val codeConstant = bindingContext.get(BindingContext.COMPILE_TIME_VALUE, argument);
-        val code = codeConstant.getValue() as String
+        val stringType = KotlinBuiltIns.getInstance().getStringType()
+        val evaluationResult = ConstantExpressionEvaluator.evaluate(argument, context.trace, stringType)!!
+        val code = evaluationResult.getValue() as String
         val reader = StringReader(code)
 
         val errorReporter = JsCodeErrorReporter(argument, code, context.trace)
@@ -105,34 +113,33 @@ public class JsCallChecker : CallChecker {
 
 }
 
-private class JsCodeErrorReporter(
+class JsCodeErrorReporter(
         private val nodeToReport: JetExpression,
         private val code: String,
         private val trace: BindingTrace
 ) : ErrorReporter {
-    {
-        assert(nodeToReport is JetStringTemplateExpression, "js argument is expected to be compile-time string literal")
-    }
-
     override fun warning(message: String, startPosition: CodePosition, endPosition: CodePosition) {
-        val diagnostic = getDiagnostic(ErrorsJs.JSCODE_WARNING, message, startPosition, endPosition)
-        trace.report(diagnostic)
+        report(ErrorsJs.JSCODE_WARNING, message, startPosition, endPosition)
     }
 
     override fun error(message: String, startPosition: CodePosition, endPosition: CodePosition) {
-        val diagnostic = getDiagnostic(ErrorsJs.JSCODE_ERROR, message, startPosition, endPosition)
-        trace.report(diagnostic)
+        report(ErrorsJs.JSCODE_ERROR, message, startPosition, endPosition)
         throw AbortParsingException()
     }
 
-    private fun getDiagnostic(
-            diagnosticFactory: DiagnosticFactory2<JetExpression, String, List<TextRange>>,
+    private fun report(
+            diagnosticFactory: DiagnosticFactory3<JetExpression, String, String, List<TextRange>>,
             message: String,
             startPosition: CodePosition,
             endPosition: CodePosition
-    ): ParametrizedDiagnostic<JetExpression> {
-        val textRange = TextRange(startPosition.absoluteOffset, endPosition.absoluteOffset)
-        return diagnosticFactory.on(nodeToReport, message, listOf(textRange))
+    ) {
+        val helper: Helper = when {
+            nodeToReport.isConstantStringLiteral -> StringLiteralHelper(message, startPosition, endPosition)
+            else -> StringExpressionHelper(message, startPosition, endPosition)
+        }
+
+        val parametrizedDiagnostic = diagnosticFactory.on(nodeToReport, helper.plainTextMessage, helper.htmlMessage, helper.textRanges)
+        trace.report(parametrizedDiagnostic)
     }
 
     private val CodePosition.absoluteOffset: Int
@@ -140,6 +147,35 @@ private class JsCodeErrorReporter(
             val quotesLength = nodeToReport.getFirstChild().getTextLength()
             return nodeToReport.getTextOffset() + quotesLength + code.offsetOf(this)
         }
+
+    trait Helper {
+        val plainTextMessage: String
+        val htmlMessage: String
+        val textRanges: List<TextRange>
+    }
+
+    inner class StringLiteralHelper(
+            private val message: String,
+            private val startPosition: CodePosition,
+            private val endPosition: CodePosition
+    ) : Helper {
+        override val plainTextMessage: String = message
+        override val htmlMessage: String = message
+        override val textRanges: List<TextRange> = listOf(TextRange(startPosition.absoluteOffset, endPosition.absoluteOffset))
+    }
+
+    inner class StringExpressionHelper(
+            private val message: String,
+            startPosition: CodePosition,
+            endPosition: CodePosition
+    ) : Helper {
+        private val start: Int = code.offsetOf(startPosition)
+        private val end: Int = code.offsetOf(endPosition)
+
+        override val plainTextMessage: String = "%s%nIn code:%n%s".format(message, code.underlineAsText(start, end))
+        override val htmlMessage: String = "%s<br>In code:<br><pre>%s</pre>".format(message, code.underlineAsHtml(start, end))
+        override val textRanges: List<TextRange> = listOf(nodeToReport.getTextRange())
+    }
 }
 
 /**
@@ -158,16 +194,95 @@ private fun String.offsetOf(position: CodePosition): Int {
             return i
         }
 
+        i++
+        offsetInLine++
+
         if (isEndOfLine(c.toInt())) {
             offsetInLine = 0
             lineCount++
             assert(lineCount <= position.line)
         }
-
-        i++
-        offsetInLine++
     }
 
     return length()
+}
+
+private val JetExpression.isConstantStringLiteral: Boolean
+    get() = this is JetStringTemplateExpression && getEntries().all { it is JetLiteralStringTemplateEntry }
+
+/**
+ * Underlines string in given rage.
+ *
+ * For example:
+ * var  = 10;
+ *    ^^^^
+ */
+private fun String.underlineAsText(from: Int, to: Int): String {
+    val lines = StringBuilder()
+    var marks = StringBuilder()
+    var lineWasMarked = false
+
+    for (i in indices) {
+        val c = charAt(i)
+        val mark: Char
+
+        mark = when (i) {
+            in from..to -> '^'
+            else -> ' '
+        }
+
+        lines.append(c)
+        marks.append(mark)
+        lineWasMarked = lineWasMarked || mark != ' '
+
+        if (isEndOfLine(c.toInt())) {
+            if (lineWasMarked) {
+                lines.appendln(marks.toString().trimTrailing())
+                lineWasMarked = false
+            }
+
+            marks = StringBuilder()
+        }
+    }
+
+    if (lineWasMarked) {
+        lines.appendln()
+        lines.append(marks.toString())
+    }
+
+    return lines.toString()
+}
+
+private fun String.underlineAsHtml(from: Int, to: Int): String {
+    val lines = StringBuilder()
+    var openMarker = false
+    val underlineStart = "<u>"
+    val underlineEnd = "</u>"
+
+    for (i in indices) {
+        val c = charAt(i)
+
+        val mark = when (i) {
+            from -> {
+                openMarker = true
+                underlineStart
+            }
+            to -> {
+                openMarker = false
+                underlineEnd
+            }
+            else -> ""
+        }
+
+        lines.append(mark)
+
+        if (isEndOfLine(c.toInt()) && openMarker) {
+            lines.append(underlineEnd + c + underlineStart)
+        } else {
+            lines.append(c)
+        }
+    }
+
+    return lines.toString()
 }
 
