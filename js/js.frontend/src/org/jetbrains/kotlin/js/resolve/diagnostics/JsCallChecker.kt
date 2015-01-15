@@ -286,3 +286,13 @@ private fun String.underlineAsHtml(from: Int, to: Int): String {
     return lines.toString()
 }
 
+public object TestStringUtils {
+    TestOnly
+    public fun underlineAsText(string: String, from: Int, to: Int): String =
+            string.underlineAsText(from, to)
+
+    TestOnly
+    public fun underlineAsHtml(string: String, from: Int, to: Int): String =
+            string.underlineAsHtml(from, to)
+}
+
