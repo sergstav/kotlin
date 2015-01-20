@@ -80,16 +80,9 @@ public class ReflectJavaClass(private val klass: Class<*>) : ReflectJavaElement(
         return Name.identifier(klass.getSimpleName())
     }
 
-    override fun getAnnotations() = klass.getDeclaredAnnotations().map { ReflectJavaAnnotation(it) }
+    override fun getAnnotations(): List<ReflectJavaAnnotation> = getAnnotations(klass.getDeclaredAnnotations())
 
-    override fun findAnnotation(fqName: FqName): JavaAnnotation? {
-        for (annotation in klass.getDeclaredAnnotations()) {
-            if (annotation.annotationType().fqName == fqName) {
-                return ReflectJavaAnnotation(annotation)
-            }
-        }
-        return null
-    }
+    override fun findAnnotation(fqName: FqName): ReflectJavaAnnotation? = findAnnotation(klass.getDeclaredAnnotations(), fqName)
 
     override fun getTypeParameters() = klass.getTypeParameters().map { ReflectJavaTypeParameter(it!!) }
 

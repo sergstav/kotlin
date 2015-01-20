@@ -34,6 +34,19 @@ private fun calculateVisibility(modifiers: Int): Visibility {
     }
 }
 
+fun getAnnotations(annotations: Array<Annotation>): List<ReflectJavaAnnotation> {
+    return annotations.map { ReflectJavaAnnotation(it) }
+}
+
+fun findAnnotation(annotations: Array<Annotation>, fqName: FqName): ReflectJavaAnnotation? {
+    for (annotation in annotations) {
+        if (annotation.annotationType().fqName == fqName) {
+            return ReflectJavaAnnotation(annotation)
+        }
+    }
+    return null
+}
+
 // TODO: can there be primitive types, arrays? Anonymous classes which don't have a FqName?
 public val Class<*>.fqName: FqName
     get() = getDeclaringClass()?.fqName?.child(Name.identifier(getSimpleName())) ?: FqName(getName())

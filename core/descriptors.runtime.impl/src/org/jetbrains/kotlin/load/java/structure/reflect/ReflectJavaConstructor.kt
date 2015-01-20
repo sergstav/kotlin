@@ -27,15 +27,9 @@ public class ReflectJavaConstructor(constructor: Constructor<*>) : ReflectJavaMe
     private val constructor: Constructor<*>
         get() = member as Constructor<*>
 
-    override fun getAnnotations(): Collection<JavaAnnotation> {
-        // TODO
-        return listOf()
-    }
+    override fun getAnnotations() = getAnnotations(constructor.getDeclaredAnnotations())
 
-    override fun findAnnotation(fqName: FqName): JavaAnnotation? {
-        // TODO
-        return null
-    }
+    override fun findAnnotation(fqName: FqName) = findAnnotation(constructor.getDeclaredAnnotations(), fqName)
 
     override fun getValueParameters(): List<JavaValueParameter> {
         // TODO: test this code with annotations on constructor parameters of enums and inner classes

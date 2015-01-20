@@ -28,15 +28,9 @@ public class ReflectJavaMethod(method: Method) : ReflectJavaMember(method), Java
     private val method: Method
         get() = member as Method
 
-    override fun getAnnotations(): Collection<JavaAnnotation> {
-        // TODO
-        return listOf()
-    }
+    override fun getAnnotations() = getAnnotations(method.getDeclaredAnnotations())
 
-    override fun findAnnotation(fqName: FqName): JavaAnnotation? {
-        // TODO
-        return null
-    }
+    override fun findAnnotation(fqName: FqName) = findAnnotation(method.getDeclaredAnnotations(), fqName)
 
     override fun getValueParameters(): List<JavaValueParameter> {
         val types = method.getGenericParameterTypes()!!
