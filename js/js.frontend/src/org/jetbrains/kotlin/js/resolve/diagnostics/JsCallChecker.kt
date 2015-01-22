@@ -80,7 +80,7 @@ public class JsCallChecker : CallChecker {
         val evaluationResult = ConstantExpressionEvaluator.evaluate(argument, context.trace, stringType)
 
         if (evaluationResult == null) {
-            context.trace.report(ErrorsJs.JSCODE_ARGUMENT_SHOULD_BE_LITERAL.on(argument))
+            context.trace.report(ErrorsJs.JSCODE_ARGUMENT_SHOULD_BE_CONSTANT.on(argument))
         }
 
         return evaluationResult != null

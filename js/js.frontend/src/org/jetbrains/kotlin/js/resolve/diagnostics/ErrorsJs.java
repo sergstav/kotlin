@@ -40,7 +40,7 @@ public interface ErrorsJs {
     // first string is expected to be plain text message, second is html one
     DiagnosticFactory3<JetExpression, String, String, List<TextRange>> JSCODE_ERROR = DiagnosticFactory3.create(ERROR, JsCodePositioningStrategy.INSTANCE$);
     DiagnosticFactory3<JetExpression, String, String, List<TextRange>> JSCODE_WARNING = DiagnosticFactory3.create(WARNING, JsCodePositioningStrategy.INSTANCE$);
-    DiagnosticFactory0<JetExpression> JSCODE_ARGUMENT_SHOULD_BE_LITERAL = DiagnosticFactory0.create(ERROR, DEFAULT);
+    DiagnosticFactory0<JetExpression> JSCODE_ARGUMENT_SHOULD_BE_CONSTANT = DiagnosticFactory0.create(ERROR, DEFAULT);
 
     @SuppressWarnings("UnusedDeclaration")
     Object _initializer = new Object() {
