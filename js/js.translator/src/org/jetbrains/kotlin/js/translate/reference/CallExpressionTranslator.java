@@ -147,9 +147,9 @@ public final class CallExpressionTranslator extends AbstractCallExpressionTransl
         JetType stringType = KotlinBuiltIns.getInstance().getStringType();
         CompileTimeConstant<?> constant = ConstantExpressionEvaluator.evaluate(jsCodeExpression, bindingTrace, stringType);
 
-        assert constant != null: "jsCode must be compile time string";
+        assert constant != null: "jsCode must be compile time string " + jsCodeExpression;
         String jsCode = (String) constant.getValue();
-        assert jsCode != null;
+        assert jsCode != null: jsCodeExpression.toString();
 
         List<JsStatement> statements = new ArrayList<JsStatement>();
         ErrorReporter errorReporter = new ErrorReporter() {
