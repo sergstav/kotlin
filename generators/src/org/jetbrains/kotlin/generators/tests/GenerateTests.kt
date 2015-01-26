@@ -141,6 +141,7 @@ import org.jetbrains.kotlin.completion.handlers.AbstractBasicCompletionHandlerTe
 import org.jetbrains.kotlin.idea.decompiler.stubBuilder.AbstractClsStubBuilderTest
 import org.jetbrains.kotlin.codegen.AbstractLineNumberTest
 import org.jetbrains.kotlin.completion.handlers.AbstractKeywordCompletionHandlerTest
+import org.jetbrains.kotlin.resolve.diagnostics.AbstractJsCallCheckerTest
 import org.jetbrains.kotlin.idea.kdoc.AbstractKDocHighlightingTest
 import org.jetbrains.kotlin.addImport.AbstractAddImportTest
 
@@ -742,6 +743,15 @@ fun main(args: Array<String>) {
     testGroup("js/js.tests/test", "compiler/testData") {
         testClass(javaClass<AbstractBridgeTest>()) {
             model("codegen/box/bridges", targetBackend = TargetBackend.JS)
+        }
+    }
+
+    testGroup("js/js.tests/test", "js/js.translator/testData/jsCode") {
+        testClass(javaClass<AbstractJsCallCheckerTest>()) {
+            model("underlinePlainText", testMethod = "doUnderlinePlainTextTest", extension = AbstractJsCallCheckerTest.TEST_EXTENSION,
+                  targetBackend = TargetBackend.JS)
+            model("underlineHtml", testMethod = "doUnderlineHtmlTest", extension = AbstractJsCallCheckerTest.TEST_EXTENSION,
+                  targetBackend = TargetBackend.JS)
         }
     }
 }
