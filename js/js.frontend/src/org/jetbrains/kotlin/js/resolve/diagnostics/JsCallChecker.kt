@@ -67,34 +67,18 @@ public class JsCallChecker : CallChecker {
         val arguments = expression.getValueArgumentList()?.getArguments()
         val argument = arguments?.firstOrNull()?.getArgumentExpression()
 
-        if (argument == null || !(checkArgumentIsStringLiteral(argument, context))) return
+        if (argument == null) return
 
-        checkSyntax(argument, context)
-    }
-
-    fun checkArgumentIsStringLiteral(
-            argument: JetExpression,
-            context: BasicCallResolutionContext
-    ): Boolean {
         val stringType = KotlinBuiltIns.getInstance().getStringType()
         val evaluationResult = ConstantExpressionEvaluator.evaluate(argument, context.trace, stringType)
 
         if (evaluationResult == null) {
             context.trace.report(ErrorsJs.JSCODE_ARGUMENT_SHOULD_BE_CONSTANT.on(argument))
+            return
         }
 
-        return evaluationResult != null
-    }
-
-    fun checkSyntax(
-            argument: JetExpression,
-            context: BasicCallResolutionContext
-    ): Boolean {
-        val stringType = KotlinBuiltIns.getInstance().getStringType()
-        val evaluationResult = ConstantExpressionEvaluator.evaluate(argument, context.trace, stringType)!!
         val code = evaluationResult.getValue() as String
         val reader = StringReader(code)
-
         val errorReporter = JsCodeErrorReporter(argument, code, context.trace)
         Context.enter().setErrorReporter(errorReporter)
 
@@ -103,14 +87,11 @@ public class JsCallChecker : CallChecker {
             val parser = Parser(IRFactory(ts), /* insideFunction = */ true)
             parser.parse(ts)
         } catch (e: AbortParsingException) {
-            return false
+            // ignore
         } finally {
             Context.exit()
         }
-
-        return true
     }
-
 }
 
 class JsCodeErrorReporter(
