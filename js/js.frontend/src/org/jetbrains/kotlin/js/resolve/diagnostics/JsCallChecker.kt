@@ -52,14 +52,14 @@ public class JsCallChecker : CallChecker {
         public val JS_PATTERN: DescriptorPredicate = PatternBuilder.pattern("kotlin.js.js(String)")
 
         platformStatic
-        public fun <F : CallableDescriptor?> ResolvedCall<F>.matchesJsCode(): Boolean {
+        public fun <F : CallableDescriptor?> ResolvedCall<F>.isJsCalled(): Boolean {
             val descriptor = getResultingDescriptor()
             return descriptor is SimpleFunctionDescriptor && JS_PATTERN.apply(descriptor)
         }
     }
 
     override fun <F : CallableDescriptor?> check(resolvedCall: ResolvedCall<F>, context: BasicCallResolutionContext) {
-        if (context.isAnnotationContext || !resolvedCall.matchesJsCode()) return
+        if (context.isAnnotationContext || !resolvedCall.isJsCalled()) return
 
         val expression = resolvedCall.getCall().getCallElement()
         if (expression !is JetCallExpression) return

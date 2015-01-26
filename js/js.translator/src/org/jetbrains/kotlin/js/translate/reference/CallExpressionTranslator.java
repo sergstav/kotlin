@@ -51,7 +51,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.jetbrains.kotlin.resolve.calls.callUtil.CallUtilPackage.getFunctionResolvedCallWithAssert;
-import static org.jetbrains.kotlin.resolve.diagnostics.JsCallChecker.matchesJsCode;
+import static org.jetbrains.kotlin.resolve.diagnostics.JsCallChecker.isJsCalled;
 
 public final class CallExpressionTranslator extends AbstractCallExpressionTranslator {
 
@@ -63,7 +63,7 @@ public final class CallExpressionTranslator extends AbstractCallExpressionTransl
     ) {
         ResolvedCall<? extends FunctionDescriptor> resolvedCall = getFunctionResolvedCallWithAssert(expression, context.bindingContext());
 
-        if (matchesJsCode(resolvedCall)) {
+        if (isJsCalled(resolvedCall)) {
             return (new CallExpressionTranslator(expression, receiver, context)).translateJsCode();
         }
         
