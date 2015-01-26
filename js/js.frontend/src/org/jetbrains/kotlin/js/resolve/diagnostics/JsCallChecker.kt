@@ -49,7 +49,7 @@ import kotlin.platform.platformStatic
 public class JsCallChecker : CallChecker {
 
     class object {
-        public val JS_PATTERN: DescriptorPredicate = PatternBuilder.pattern("kotlin.js.js(String)")
+        private val JS_PATTERN: DescriptorPredicate = PatternBuilder.pattern("kotlin.js.js(String)")
 
         platformStatic
         public fun <F : CallableDescriptor?> ResolvedCall<F>.isJsCalled(): Boolean {
