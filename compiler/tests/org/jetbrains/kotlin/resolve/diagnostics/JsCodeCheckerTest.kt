@@ -22,6 +22,8 @@ import org.jetbrains.kotlin.resolve.diagnostics.*
 
 import org.junit.Test
 import org.junit.Assert
+import org.jetbrains.kotlin.js.resolve.diagnostics.underlineAsText
+import org.jetbrains.kotlin.js.resolve.diagnostics.underlineAsHtml
 
 class JsCodeCheckerTest {
     private val TEST_DIR = "compiler/testData/diagnostics/tests/jsCode/"
@@ -32,14 +34,14 @@ class JsCodeCheckerTest {
     Test
     fun underlinePlainText() {
         doUnderlineTest("underlinePlainText/") { (text: String, from: Int, to: Int): String ->
-            TestStringUtils.underlineAsText(text, from, to)
+            text.underlineAsText(from, to)
         }
     }
 
     Test
     fun underlineHtml() {
         doUnderlineTest("underlineHtml/") { (text: String, from: Int, to: Int): String ->
-            TestStringUtils.underlineAsHtml(text, from, to)
+            text.underlineAsHtml(from, to)
         }
     }
 
