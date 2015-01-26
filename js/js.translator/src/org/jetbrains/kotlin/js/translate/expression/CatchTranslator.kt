@@ -31,6 +31,7 @@ import org.jetbrains.kotlin.js.translate.general.Translation.translateAsStatemen
 import org.jetbrains.kotlin.js.translate.utils.JsAstUtils.convertToBlock
 import org.jetbrains.kotlin.js.translate.utils.TranslationUtils
 import org.jetbrains.kotlin.js.translate.utils.JsAstUtils
+import org.jetbrains.kotlin.js.getJetTypeFqName
 
 class CatchTranslator(
         val catches: List<JetCatchClause>,
