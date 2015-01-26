@@ -23,7 +23,7 @@ import org.jetbrains.annotations.TestOnly
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.descriptors.CallableDescriptor
 import org.jetbrains.kotlin.descriptors.SimpleFunctionDescriptor
-import org.jetbrains.kotlin.diagnostics.DiagnosticFactory3
+import org.jetbrains.kotlin.diagnostics.DiagnosticFactory1
 import org.jetbrains.kotlin.diagnostics.DiagnosticSink
 import org.jetbrains.kotlin.diagnostics.ParametrizedDiagnostic
 import org.jetbrains.kotlin.js.patterns.DescriptorPredicate
@@ -33,6 +33,7 @@ import org.jetbrains.kotlin.psi.JetCallExpression
 import org.jetbrains.kotlin.psi.JetExpression
 import org.jetbrains.kotlin.psi.JetLiteralStringTemplateEntry
 import org.jetbrains.kotlin.psi.JetStringTemplateExpression
+import org.jetbrains.kotlin.renderer.Renderer
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.BindingTrace
 import org.jetbrains.kotlin.resolve.calls.checkers.CallChecker
@@ -109,17 +110,24 @@ class JsCodeErrorReporter(
     }
 
     private fun report(
-            diagnosticFactory: DiagnosticFactory3<JetExpression, String, String, List<TextRange>>,
+            diagnosticFactory: DiagnosticFactory1<JetExpression, JsCallData>,
             message: String,
             startPosition: CodePosition,
             endPosition: CodePosition
     ) {
-        val helper: Helper = when {
-            nodeToReport.isConstantStringLiteral -> StringLiteralHelper(message, startPosition, endPosition)
-            else -> StringExpressionHelper(message, startPosition, endPosition)
+        val data = when {
+            nodeToReport.isConstantStringLiteral -> {
+                val reportRange = TextRange(startPosition.absoluteOffset, endPosition.absoluteOffset)
+                JsCallData(reportRange, message)
+            }
+            else -> {
+                val reportRange = nodeToReport.getTextRange()
+                val codeRange = TextRange(code.offsetOf(startPosition), code.offsetOf(endPosition))
+                JsCallDataWithCode(reportRange, message, code, codeRange)
+            }
         }
 
-        val parametrizedDiagnostic = diagnosticFactory.on(nodeToReport, helper.plainTextMessage, helper.htmlMessage, helper.textRanges)
+        val parametrizedDiagnostic = diagnosticFactory.on(nodeToReport, data)
         trace.report(parametrizedDiagnostic)
     }
 
@@ -128,35 +136,6 @@ class JsCodeErrorReporter(
             val quotesLength = nodeToReport.getFirstChild().getTextLength()
             return nodeToReport.getTextOffset() + quotesLength + code.offsetOf(this)
         }
-
-    trait Helper {
-        val plainTextMessage: String
-        val htmlMessage: String
-        val textRanges: List<TextRange>
-    }
-
-    inner class StringLiteralHelper(
-            private val message: String,
-            private val startPosition: CodePosition,
-            private val endPosition: CodePosition
-    ) : Helper {
-        override val plainTextMessage: String = message
-        override val htmlMessage: String = message
-        override val textRanges: List<TextRange> = listOf(TextRange(startPosition.absoluteOffset, endPosition.absoluteOffset))
-    }
-
-    inner class StringExpressionHelper(
-            private val message: String,
-            startPosition: CodePosition,
-            endPosition: CodePosition
-    ) : Helper {
-        private val start: Int = code.offsetOf(startPosition)
-        private val end: Int = code.offsetOf(endPosition)
-
-        override val plainTextMessage: String = "%s%nIn code:%n%s".format(message, code.underlineAsText(start, end))
-        override val htmlMessage: String = "%s<br>In code:<br><pre>%s</pre>".format(message, code.underlineAsHtml(start, end))
-        override val textRanges: List<TextRange> = listOf(nodeToReport.getTextRange())
-    }
 }
 
 /**
@@ -191,5 +170,12 @@ private fun String.offsetOf(position: CodePosition): Int {
 private val JetExpression.isConstantStringLiteral: Boolean
     get() = this is JetStringTemplateExpression && getEntries().all { it is JetLiteralStringTemplateEntry }
 
+open class JsCallData(val reportRange: TextRange, val message: String)
 
+class JsCallDataWithCode(
+        reportRange: TextRange,
+        message: String,
+        val code: String,
+        val codeRange: TextRange
+) : JsCallData(reportRange, message)
 

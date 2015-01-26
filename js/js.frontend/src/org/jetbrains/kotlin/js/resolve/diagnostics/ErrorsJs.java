@@ -21,6 +21,7 @@ import org.jetbrains.kotlin.diagnostics.*;
 import org.jetbrains.kotlin.psi.JetDeclaration;
 import org.jetbrains.kotlin.psi.JetElement;
 import org.jetbrains.kotlin.psi.JetExpression;
+import org.jetbrains.kotlin.resolve.diagnostics.JsCallData;
 import org.jetbrains.kotlin.types.JetType;
 
 import java.util.List;
@@ -38,8 +39,8 @@ public interface ErrorsJs {
     DiagnosticFactory2<JetElement, Integer, String> NATIVE_INDEXER_WRONG_PARAMETER_COUNT = DiagnosticFactory2.create(ERROR, DECLARATION_SIGNATURE_OR_DEFAULT);
 
     // first string is expected to be plain text message, second is html one
-    DiagnosticFactory3<JetExpression, String, String, List<TextRange>> JSCODE_ERROR = DiagnosticFactory3.create(ERROR, JsCodePositioningStrategy.INSTANCE$);
-    DiagnosticFactory3<JetExpression, String, String, List<TextRange>> JSCODE_WARNING = DiagnosticFactory3.create(WARNING, JsCodePositioningStrategy.INSTANCE$);
+    DiagnosticFactory1<JetExpression, JsCallData> JSCODE_ERROR = DiagnosticFactory1.create(ERROR, JsCodePositioningStrategy.INSTANCE$);
+    DiagnosticFactory1<JetExpression, JsCallData> JSCODE_WARNING = DiagnosticFactory1.create(WARNING, JsCodePositioningStrategy.INSTANCE$);
     DiagnosticFactory0<JetExpression> JSCODE_ARGUMENT_SHOULD_BE_CONSTANT = DiagnosticFactory0.create(ERROR, DEFAULT);
 
     @SuppressWarnings("UnusedDeclaration")

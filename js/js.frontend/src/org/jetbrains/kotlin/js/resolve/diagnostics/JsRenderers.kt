@@ -16,7 +16,33 @@
 
 package org.jetbrains.kotlin.js.resolve.diagnostics
 
+import org.jetbrains.kotlin.renderer.Renderer
+import org.jetbrains.kotlin.resolve.diagnostics.JsCallData
+import org.jetbrains.kotlin.resolve.diagnostics.JsCallDataWithCode
 import com.google.gwt.dev.js.rhino.Utils.isEndOfLine
+
+public open class JsCallDataTextRenderer : Renderer<JsCallData> {
+    open protected fun format(data: JsCallDataWithCode): String {
+        val codeRange = data.codeRange
+        val code = data.code.underlineAsText(codeRange.getStartOffset(), codeRange.getEndOffset())
+        return "${data.message} in code:\n${code}"
+    }
+
+    override fun render(data: JsCallData?): String =
+            when (data) {
+                is JsCallDataWithCode -> format(data)
+                is JsCallData -> data.message
+                else -> throw AssertionError("Cannot render null data")
+            }
+}
+
+public class JsCallDataHtmlRenderer : JsCallDataTextRenderer() {
+    override fun format(data: JsCallDataWithCode): String {
+        val codeRange = data.codeRange
+        val code = data.code.underlineAsHtml(codeRange.getStartOffset(), codeRange.getEndOffset())
+        return "${data.message} in code:<br><pre>${code}</pre>"
+    }
+}
 
 /**
  * Underlines string in given rage.
