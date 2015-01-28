@@ -96,7 +96,8 @@ public class UnusedSymbolInspection : AbstractKotlinInspection() {
                 if (!ProjectRootsUtil.isInProjectSource(declaration)) return
 
                 // Simple PSI-based checks
-                if (declaration.getName() == null) return
+                //TODO_R: decide what do with unused class object
+                if (declaration.getNameIdentifier() == null) return
                 if (declaration is JetEnumEntry) return
                 if (declaration.hasModifier(JetTokens.OVERRIDE_KEYWORD)) return
                 if (declaration is JetProperty && declaration.isLocal()) return
