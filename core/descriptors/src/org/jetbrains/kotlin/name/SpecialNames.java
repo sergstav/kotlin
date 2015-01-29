@@ -36,12 +36,5 @@ public class SpecialNames {
         return name != null && !name.isSpecial() ? name : SAFE_IDENTIFIER_FOR_NO_NAME;
     }
 
-    //TODO_R: should go away
-    @NotNull
-    public static Name getClassObjectName() {
-        return DEFAULT_NAME_FOR_DEFAULT_OBJECT;
-    }
-
     private SpecialNames() {}
-
 }
