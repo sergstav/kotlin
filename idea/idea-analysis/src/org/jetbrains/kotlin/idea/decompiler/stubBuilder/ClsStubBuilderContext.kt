@@ -73,7 +73,7 @@ private fun ClsStubBuilderContext.child(typeParameterList: List<ProtoBuf.TypePar
     return ClsStubBuilderContext(
             this.components,
             this.nameResolver,
-            this.containerFqName.child(name),
+            if (name != null) this.containerFqName.child(name) else this.containerFqName,
             this.typeParameters.child(nameResolver, typeParameterList)
     )
 }
