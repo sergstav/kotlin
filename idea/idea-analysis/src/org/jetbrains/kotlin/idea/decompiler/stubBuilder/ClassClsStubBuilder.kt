@@ -170,7 +170,7 @@ private class ClassClsStubBuilder(
     }
 
     private fun createClassObjectStub(classBody: KotlinPlaceHolderStubImpl<JetClassBody>) {
-        if (classObjectName == null || classKind == ProtoBuf.Class.Kind.OBJECT || classKind == ProtoBuf.Class.Kind.CLASS_OBJECT) {
+        if (classObjectName == null) {
             return
         }
 

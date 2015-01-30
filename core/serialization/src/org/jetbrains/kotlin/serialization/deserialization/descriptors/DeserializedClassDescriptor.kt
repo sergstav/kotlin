@@ -116,7 +116,7 @@ public class DeserializedClassDescriptor(
         if (!classProto.hasClassObjectName()) return null
 
         val classObjectName = c.nameResolver.getName(classProto.getClassObjectName())
-        return c.components.deserializeClass(classId.createNestedClassId(classObjectName))
+        return memberScope.getClassifier(classObjectName) as? ClassDescriptor
     }
 
     override fun getClassObjectDescriptor(): ClassDescriptor? = classObjectDescriptor()

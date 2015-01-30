@@ -954,7 +954,7 @@ public class ImplementationBodyCodegen extends ClassBodyCodegen {
     }
 
     private void generateFieldForSingleton() {
-        if (isEnumEntry(descriptor)) return;
+        if (isEnumEntry(descriptor) || isClassObject(descriptor)) return;
 
         ClassDescriptor classObjectDescriptor = descriptor.getClassObjectDescriptor();
         ClassDescriptor fieldTypeDescriptor;
@@ -963,7 +963,7 @@ public class ImplementationBodyCodegen extends ClassBodyCodegen {
             original = myClass;
             fieldTypeDescriptor = descriptor;
         }
-        else if (classObjectDescriptor != null && !isClassObject(descriptor)) {
+        else if (classObjectDescriptor != null) {
             JetObjectDeclaration classObject = ((JetClass) myClass).getClassObject();
             assert classObject != null : "Class object not found: " + myClass.getText();
             original = classObject;
