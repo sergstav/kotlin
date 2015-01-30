@@ -32,6 +32,7 @@ import org.jetbrains.kotlin.psi.stubs.elements.JetStubElementTypes;
 import java.util.Arrays;
 import java.util.List;
 
+import static kotlin.KotlinPackage.firstOrNull;
 import static org.jetbrains.kotlin.psi.stubs.elements.JetStubElementTypes.*;
 
 public class JetClassBody extends JetElementImplStub<KotlinPlaceHolderStub<JetClassBody>> implements JetDeclarationContainer {
@@ -67,8 +68,7 @@ public class JetClassBody extends JetElementImplStub<KotlinPlaceHolderStub<JetCl
 
     @Nullable
     public JetObjectDeclaration getClassObject() {
-        List<JetObjectDeclaration> classObjects = getAllClassObjects();
-        return classObjects.isEmpty() ? null : classObjects.iterator().next();
+        return firstOrNull(getAllClassObjects());
     }
 
     @NotNull
