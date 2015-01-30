@@ -61,7 +61,7 @@ public interface ClassDescriptor extends ClassifierDescriptor, MemberDescriptor,
     JetType getClassObjectType();
 
     @Nullable
-    ClassDescriptor getClassObjectDescriptor();
+    ClassDescriptor getDefaultObjectDescriptor();
 
     @NotNull
     ClassKind getKind();
