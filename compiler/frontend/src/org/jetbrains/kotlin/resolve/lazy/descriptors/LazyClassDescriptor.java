@@ -381,10 +381,8 @@ public class LazyClassDescriptor extends ClassDescriptorBase implements ClassDes
     @Nullable
     private LazyClassDescriptor computeClassObjectDescriptor(@Nullable JetObjectDeclaration classObject) {
         JetClassLikeInfo classObjectInfo = getClassObjectInfo(classObject);
-        //TODO_R: would be nice to kotlinize
         if (classObjectInfo instanceof JetClassOrObjectInfo) {
             Name name = ((JetClassOrObjectInfo) classObjectInfo).getName();
-            //TODO_R:
             assert name != null;
             ClassifierDescriptor classObjectDescriptor = getScopeForMemberLookup().getClassifier(name);
             if (classObjectDescriptor instanceof LazyClassDescriptor) {
@@ -394,11 +392,9 @@ public class LazyClassDescriptor extends ClassDescriptorBase implements ClassDes
                 return null;
             }
         }
-        //TODO_R: use isObject isClassObject
         if (getKind() == ClassKind.CLASS_OBJECT || getKind() == ClassKind.OBJECT) {
             return this;
         }
-        //TODO_R: do better
         if (getKind() == ClassKind.ENUM_ENTRY) {
             DeclarationDescriptor containingDeclaration = getContainingDeclaration();
             assert containingDeclaration instanceof ClassDescriptor && ((ClassDescriptor) containingDeclaration).getKind() == ClassKind.ENUM_CLASS;
