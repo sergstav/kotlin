@@ -581,13 +581,13 @@ public class JetParsing extends AbstractJetParsing {
             marker.done(OBJECT_DECLARATION_NAME);
         }
         else {
+            assert object : "Must be an object to be nameless";
             if (at(IDENTIFIER)) {
                 if (!nameAllowed) {
-                    assert object : "Must be an object to be nameless";
                     errorAndAdvance("An object expression cannot bind a name");
                 }
                 else {
-                    OptionalMarker marker = new OptionalMarker(object);
+                    PsiBuilder.Marker marker = mark();
                     advance();
                     marker.done(OBJECT_DECLARATION_NAME);
                 }
