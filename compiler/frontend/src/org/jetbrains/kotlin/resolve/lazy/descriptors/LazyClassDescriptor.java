@@ -42,7 +42,6 @@ import org.jetbrains.kotlin.resolve.lazy.LazyEntity;
 import org.jetbrains.kotlin.resolve.lazy.data.JetClassInfoUtil;
 import org.jetbrains.kotlin.resolve.lazy.data.JetClassLikeInfo;
 import org.jetbrains.kotlin.resolve.lazy.data.JetClassOrObjectInfo;
-import org.jetbrains.kotlin.resolve.lazy.data.SyntheticClassObjectInfo;
 import org.jetbrains.kotlin.resolve.lazy.declarations.ClassMemberDeclarationProvider;
 import org.jetbrains.kotlin.resolve.scopes.*;
 import org.jetbrains.kotlin.storage.MemoizedFunctionToNotNull;
@@ -551,15 +550,7 @@ public class LazyClassDescriptor extends ClassDescriptorBase implements ClassDes
                             return new Supertypes(Collections.<JetType>emptyList());
                         }
 
-                        JetClassLikeInfo info = declarationProvider.getOwnerInfo();
-                        if (info instanceof SyntheticClassObjectInfo) {
-                            LazyClassDescriptor descriptor = ((SyntheticClassObjectInfo) info).getClassDescriptor();
-                            if (descriptor.getKind().isSingleton()) {
-                                return new Supertypes(Collections.singleton(descriptor.getDefaultType()));
-                            }
-                        }
-
-                        JetClassOrObject classOrObject = info.getCorrespondingClassOrObject();
+                        JetClassOrObject classOrObject = declarationProvider.getOwnerInfo().getCorrespondingClassOrObject();
                         if (classOrObject == null) {
                             return new Supertypes(Collections.singleton(c.getModuleDescriptor().getBuiltIns().getAnyType()));
                         }
