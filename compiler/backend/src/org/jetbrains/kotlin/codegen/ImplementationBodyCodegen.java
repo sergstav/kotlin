@@ -956,7 +956,7 @@ public class ImplementationBodyCodegen extends ClassBodyCodegen {
     private void generateFieldForSingleton() {
         if (isEnumEntry(descriptor) || isClassObject(descriptor)) return;
 
-        ClassDescriptor classObjectDescriptor = descriptor.getClassObjectDescriptor();
+        ClassDescriptor classObjectDescriptor = descriptor.getDefaultObjectDescriptor();
         ClassDescriptor fieldTypeDescriptor;
         JetClassOrObject original;
         if (isObject(descriptor)) {
@@ -1017,7 +1017,7 @@ public class ImplementationBodyCodegen extends ClassBodyCodegen {
 
     private int putClassObjectInLocalVar(ExpressionCodegen codegen) {
         FrameMap frameMap = codegen.myFrameMap;
-        ClassDescriptor classObjectDescriptor = descriptor.getClassObjectDescriptor();
+        ClassDescriptor classObjectDescriptor = descriptor.getDefaultObjectDescriptor();
         int classObjectIndex = frameMap.getIndex(classObjectDescriptor);
         if (classObjectIndex == -1) {
             classObjectIndex = frameMap.enter(classObjectDescriptor, OBJECT_TYPE);

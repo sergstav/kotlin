@@ -269,8 +269,7 @@ public class LazyClassDescriptor extends ClassDescriptorBase implements ClassDes
         thisScope.setImplicitReceiver(this.getThisAsReceiverParameter());
         thisScope.changeLockLevel(WritableScope.LockLevel.READING);
 
-        //TODO:
-        ClassDescriptor classObject = getClassObjectDescriptor();
+        ClassDescriptor classObject = getDefaultObjectDescriptor();
         JetScope classObjectAdapterScope = (classObject != null) ? new ClassObjectMixinScope(classObject) : JetScope.Empty.INSTANCE$;
 
         return new ChainedScope(
@@ -350,7 +349,7 @@ public class LazyClassDescriptor extends ClassDescriptorBase implements ClassDes
     }
 
     @Override
-    public LazyClassDescriptor getClassObjectDescriptor() {
+    public LazyClassDescriptor getDefaultObjectDescriptor() {
         return classObjectDescriptor.invoke();
     }
 
@@ -381,26 +380,18 @@ public class LazyClassDescriptor extends ClassDescriptorBase implements ClassDes
     @Nullable
     private LazyClassDescriptor computeClassObjectDescriptor(@Nullable JetObjectDeclaration classObject) {
         JetClassLikeInfo classObjectInfo = getClassObjectInfo(classObject);
-        if (classObjectInfo instanceof JetClassOrObjectInfo) {
-            Name name = ((JetClassOrObjectInfo) classObjectInfo).getName();
-            assert name != null;
-            ClassifierDescriptor classObjectDescriptor = getScopeForMemberLookup().getClassifier(name);
-            if (classObjectDescriptor instanceof LazyClassDescriptor) {
-                return (LazyClassDescriptor) classObjectDescriptor;
-            }
-            else {
-                return null;
-            }
+        if (!(classObjectInfo instanceof JetClassOrObjectInfo)) {
+            return null;
         }
-        if (getKind() == ClassKind.CLASS_OBJECT || getKind() == ClassKind.OBJECT) {
-            return this;
+        Name name = ((JetClassOrObjectInfo) classObjectInfo).getName();
+        assert name != null;
+        ClassifierDescriptor classObjectDescriptor = getScopeForMemberLookup().getClassifier(name);
+        if (classObjectDescriptor instanceof LazyClassDescriptor) {
+            return (LazyClassDescriptor) classObjectDescriptor;
         }
-        if (getKind() == ClassKind.ENUM_ENTRY) {
-            DeclarationDescriptor containingDeclaration = getContainingDeclaration();
-            assert containingDeclaration instanceof ClassDescriptor && ((ClassDescriptor) containingDeclaration).getKind() == ClassKind.ENUM_CLASS;
-            return (LazyClassDescriptor) containingDeclaration;
+        else {
+            return null;
         }
-        return null;
     }
 
     @Nullable
@@ -473,8 +464,7 @@ public class LazyClassDescriptor extends ClassDescriptorBase implements ClassDes
 
     private void doForceResolveAllContents() {
         resolveMemberHeaders();
-        //TODO:
-        ClassDescriptor classObjectDescriptor = getClassObjectDescriptor();
+        ClassDescriptor classObjectDescriptor = getDefaultObjectDescriptor();
         if (classObjectDescriptor != null) {
             ForceResolveUtil.forceResolveAllContents(classObjectDescriptor);
         }
@@ -490,7 +480,7 @@ public class LazyClassDescriptor extends ClassDescriptorBase implements ClassDes
         ForceResolveUtil.forceResolveAllContents(getAnnotations());
         ForceResolveUtil.forceResolveAllContents(getDanglingAnnotations());
 
-        getClassObjectDescriptor();
+        getDefaultObjectDescriptor();
 
         getDescriptorsForExtraClassObjects();
 
