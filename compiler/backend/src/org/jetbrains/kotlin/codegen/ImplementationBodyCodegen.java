@@ -957,7 +957,9 @@ public class ImplementationBodyCodegen extends ClassBodyCodegen {
         if (isEnumEntry(descriptor) || isClassObject(descriptor)) return;
 
         if (isObject(descriptor)) {
-            createFieldForSingleton(descriptor, myClass);
+            StackValue.Field field = StackValue.singleton(descriptor, typeMapper);
+
+            v.newField(OtherOrigin(myClass), ACC_PUBLIC | ACC_STATIC | ACC_FINAL, field.name, field.type.getDescriptor(), null, null);
 
             if (state.getClassBuilderMode() != ClassBuilderMode.FULL) return;
 
@@ -976,19 +978,18 @@ public class ImplementationBodyCodegen extends ClassBodyCodegen {
         JetObjectDeclaration classObject = ((JetClass) myClass).getClassObject();
         assert classObject != null : "Class object not found: " + myClass.getText();
 
-        createFieldForSingleton(classObjectDescriptor, classObject);
+        StackValue.Field field = StackValue.singleton(classObjectDescriptor, typeMapper);
+        v.newField(OtherOrigin(classObject), ACC_PUBLIC | ACC_STATIC | ACC_FINAL, field.name, field.type.getDescriptor(), null, null);
+
+        StackValue.Field deprecatedField = StackValue.deprecatedClassObjectAccessor(classObjectDescriptor, typeMapper);
+        v.newField(OtherOrigin(classObject), ACC_PUBLIC | ACC_STATIC | ACC_FINAL | ACC_DEPRECATED,
+                   deprecatedField.name, deprecatedField.type.getDescriptor(), null, null);
 
         if (state.getClassBuilderMode() != ClassBuilderMode.FULL) return;
 
         if (!isClassObjectWithBackingFieldsInOuter(classObjectDescriptor)) {
             generateClassObjectInitializer(classObjectDescriptor);
         }
-    }
-
-    private void createFieldForSingleton(@NotNull ClassDescriptor fieldTypeDescriptor, @NotNull JetClassOrObject original) {
-        StackValue.Field field = StackValue.singleton(fieldTypeDescriptor, typeMapper);
-
-        v.newField(OtherOrigin(original), ACC_PUBLIC | ACC_STATIC | ACC_FINAL, field.name, field.type.getDescriptor(), null, null);
     }
 
     private void generateClassObjectBackingFieldCopies() {
@@ -1039,7 +1040,11 @@ public class ImplementationBodyCodegen extends ClassBodyCodegen {
         ExpressionCodegen codegen = createOrGetClInitCodegen();
         FunctionDescriptor constructor = codegen.accessibleFunctionDescriptor(KotlinPackage.single(classObject.getConstructors()));
         generateMethodCallTo(constructor, codegen.v);
-        StackValue.singleton(classObject, typeMapper).store(StackValue.onStack(typeMapper.mapClass(classObject)), codegen.v, true);
+        codegen.v.dup();
+        StackValue.singleton(classObject, typeMapper).
+                store(StackValue.onStack(typeMapper.mapClass(classObject)), codegen.v, true);
+        StackValue.deprecatedClassObjectAccessor(classObject, typeMapper).
+                store(StackValue.onStack(typeMapper.mapClass(classObject)), codegen.v, true);
     }
 
     private void generatePrimaryConstructor(final DelegationFieldsInfo delegationFieldsInfo) {
@@ -1128,7 +1133,6 @@ public class ImplementationBodyCodegen extends ClassBodyCodegen {
 
         if (isClassObjectWithBackingFieldsInOuter(descriptor)) {
             final ImplementationBodyCodegen parentCodegen = (ImplementationBodyCodegen) getParentCodegen();
-            //generate OBJECT$
             parentCodegen.generateClassObjectInitializer(descriptor);
             generateInitializers(new Function0<ExpressionCodegen>() {
                 @Override

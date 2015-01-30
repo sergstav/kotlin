@@ -510,6 +510,11 @@ public abstract class StackValue {
         return field(info.getFieldType(), Type.getObjectType(info.getOwnerInternalName()), info.getFieldName(), true, none());
     }
 
+    public static Field deprecatedClassObjectAccessor(ClassDescriptor classDescriptor, JetTypeMapper typeMapper) {
+        FieldInfo info = FieldInfo.deprecatedFieldForClassObject(classDescriptor, typeMapper);
+        return field(info.getFieldType(), Type.getObjectType(info.getOwnerInternalName()), info.getFieldName(), true, none());
+    }
+
     public static StackValue operation(Type type, Function1<InstructionAdapter, Unit> lambda) {
         return new OperationStackValue(type, lambda);
     }
