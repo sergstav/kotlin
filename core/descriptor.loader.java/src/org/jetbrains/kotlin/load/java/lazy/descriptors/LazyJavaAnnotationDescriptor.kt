@@ -34,7 +34,6 @@ import org.jetbrains.kotlin.load.java.lazy.types.toAttributes
 import org.jetbrains.kotlin.renderer.DescriptorRenderer
 import org.jetbrains.kotlin.platform.JavaToKotlinClassMap
 import org.jetbrains.kotlin.resolve.descriptorUtil.resolveTopLevelClass
-import org.jetbrains.kotlin.load.kotlin.DeserializedResolverUtils.kotlinFqNameToJavaFqName
 import org.jetbrains.kotlin.resolve.jvm.PLATFORM_TYPES
 
 private object DEPRECATED_IN_JAVA : JavaLiteralAnnotationArgument {
@@ -53,11 +52,7 @@ class LazyJavaAnnotationDescriptor(
         val javaAnnotation : JavaAnnotation
 ) : AnnotationDescriptor {
 
-    private val fqName = c.storageManager.createNullableLazyValue {
-        val classId = javaAnnotation.getClassId()
-        if (classId == null) null
-        else kotlinFqNameToJavaFqName(classId.asSingleFqName())
-    }
+    private val fqName = c.storageManager.createNullableLazyValue { javaAnnotation.getClassId().asSingleFqName().toSafe() }
 
     private val type = c.storageManager.createLazyValue {(): JetType ->
         val fqName = fqName()
