@@ -114,17 +114,7 @@ public class DeprecatedAnnotationVisitor extends AfterAnalysisHighlightingVisito
     }
 
     private void checkClassDescriptor(@NotNull JetExpression expression, @NotNull ClassDescriptor target) {
-        // Deprecated for Class, for ClassObject (if reference isn't in UserType or in ModifierList (trait))
-        if (!reportAnnotationIfNeeded(expression, target)) {
-            if (PsiTreeUtil.getParentOfType(expression, JetUserType.class) == null &&
-                PsiTreeUtil.getParentOfType(expression, JetModifierList.class) == null) {
-                //TODO_R:
-                ClassDescriptor classObjectDescriptor = target.getClassObjectDescriptor();
-                if (classObjectDescriptor != null) {
-                    reportAnnotationIfNeeded(expression, classObjectDescriptor);
-                }
-            }
-        }
+        reportAnnotationIfNeeded(expression, target);
     }
 
     private void checkPropertyDescriptor(
