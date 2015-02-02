@@ -46,6 +46,7 @@ import com.intellij.openapi.util.TextRange
 import java.io.StringReader
 
 import kotlin.platform.platformStatic
+import org.jetbrains.kotlin.resolve.TemporaryBindingTrace
 
 public class JsCallChecker : CallChecker {
 
@@ -71,7 +72,8 @@ public class JsCallChecker : CallChecker {
         if (argument == null) return
 
         val stringType = KotlinBuiltIns.getInstance().getStringType()
-        val evaluationResult = ConstantExpressionEvaluator.evaluate(argument, context.trace, stringType)
+        val trace = TemporaryBindingTrace.create(context.trace, "JsCallChecker")
+        val evaluationResult = ConstantExpressionEvaluator.evaluate(argument, trace, stringType)
 
         if (evaluationResult == null) {
             context.trace.report(ErrorsJs.JSCODE_ARGUMENT_SHOULD_BE_CONSTANT.on(argument))

@@ -37,6 +37,7 @@ import org.jetbrains.kotlin.psi.JetExpression;
 import org.jetbrains.kotlin.psi.JetStringTemplateExpression;
 import org.jetbrains.kotlin.psi.ValueArgument;
 import org.jetbrains.kotlin.resolve.BindingTrace;
+import org.jetbrains.kotlin.resolve.TemporaryBindingTrace;
 import org.jetbrains.kotlin.resolve.calls.callUtil.CallUtilPackage;
 import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall;
 import org.jetbrains.kotlin.resolve.calls.model.VariableAsFunctionResolvedCall;
@@ -143,7 +144,7 @@ public final class CallExpressionTranslator extends AbstractCallExpressionTransl
 
     @NotNull
     private List<JsStatement> parseJsCode(@NotNull JetStringTemplateExpression jsCodeExpression) {
-        BindingTrace bindingTrace = context().bindingTrace();
+        BindingTrace bindingTrace = TemporaryBindingTrace.create(context().bindingTrace(), "parseJsCode");
         JetType stringType = KotlinBuiltIns.getInstance().getStringType();
         CompileTimeConstant<?> constant = ConstantExpressionEvaluator.evaluate(jsCodeExpression, bindingTrace, stringType);
 
