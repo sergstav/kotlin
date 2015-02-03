@@ -143,7 +143,6 @@ import org.jetbrains.kotlin.codegen.AbstractLineNumberTest
 import org.jetbrains.kotlin.completion.handlers.AbstractKeywordCompletionHandlerTest
 import org.jetbrains.kotlin.idea.kdoc.AbstractKDocHighlightingTest
 import org.jetbrains.kotlin.addImport.AbstractAddImportTest
-import org.jetbrains.jet.android.AbstractCrossParserTest
 import org.jetbrains.jet.android.AbstractAndroidCompletionTest
 import org.jetbrains.jet.android.AbstractAndroidGotoTest
 import org.jetbrains.jet.jps.build.android.AbstractAndroidJpsTestCase
@@ -152,6 +151,7 @@ import org.jetbrains.jet.android.AbstractAndroidFindUsagesTest
 import org.jetbrains.jet.lang.resolve.android.test.AbstractAndroidBytecodeShapeTest
 import org.jetbrains.jet.lang.resolve.android.test.AbstractAndroidXml2KConversionTest
 import org.jetbrains.jet.lang.resolve.android.test.AbstractAndroidBoxTest
+import org.jetbrains.jet.android.AbstractParserResultEqualityTest
 
 fun main(args: Array<String>) {
     System.setProperty("java.awt.headless", "true")
