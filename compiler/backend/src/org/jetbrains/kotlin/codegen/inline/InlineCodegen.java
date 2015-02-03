@@ -27,6 +27,7 @@ import org.jetbrains.kotlin.builtins.InlineUtil;
 import org.jetbrains.kotlin.codegen.*;
 import org.jetbrains.kotlin.codegen.binding.CodegenBinding;
 import org.jetbrains.kotlin.codegen.context.CodegenContext;
+import org.jetbrains.kotlin.codegen.context.FieldOwnerContext;
 import org.jetbrains.kotlin.codegen.context.MethodContext;
 import org.jetbrains.kotlin.codegen.context.PackageContext;
 import org.jetbrains.kotlin.codegen.state.GenerationState;
@@ -205,10 +206,11 @@ public class InlineCodegen extends CallGenerator {
             //for maxLocals calculation
             MethodVisitor maxCalcAdapter = InlineCodegenUtil.wrapWithMaxLocalCalc(node);
             MethodContext methodContext = context.getParentContext().intoFunction(functionDescriptor);
-            Type ownerType = typeMapper.mapOwner(functionDescriptor, false/*use facade class*/);
+
             SMAP smap;
             if (callDefault) {
-                FakeMemberCodegen parentCodegen = new FakeMemberCodegen(codegen.getParentCodegen());
+                FakeMemberCodegen parentCodegen = new FakeMemberCodegen(codegen.getParentCodegen(), (JetNamedFunction) element,
+                                                                        (FieldOwnerContext) methodContext.getParentContext());
                 FunctionCodegen.generateDefaultImplBody(
                         methodContext, functionDescriptor, maxCalcAdapter, DefaultParameterValueLoader.DEFAULT,
                         (JetNamedFunction) element, parentCodegen
@@ -219,8 +221,8 @@ public class InlineCodegen extends CallGenerator {
                 smap = generateMethodBody(maxCalcAdapter, functionDescriptor, methodContext, (JetDeclarationWithBody) element,
                                                jvmSignature);
             }
-            PsiFile file = element.getContainingFile();
-            nodeAndSMAP = new SMAPAndMethodNode(node, file.getName(), ownerType.getInternalName(),  smap);
+
+            nodeAndSMAP = new SMAPAndMethodNode(node, smap);
             maxCalcAdapter.visitMaxs(-1, -1);
             maxCalcAdapter.visitEnd();
         }
@@ -228,7 +230,8 @@ public class InlineCodegen extends CallGenerator {
     }
 
     private InlineResult inlineCall(SMAPAndMethodNode nodeAndSmap) {
-        sourceMapper.visitSource(nodeAndSmap.getSource(), nodeAndSmap.getSourcePath());
+        SourceInfo sourceInfo = nodeAndSmap.getClassSMAP().getSourceInfo();
+        sourceMapper.visitSource(sourceInfo.getSource(), sourceInfo.getPathOrCleanFQN());
 
         MethodNode node = nodeAndSmap.getNode();
         ReifiedTypeParametersUsages reificationResult = reifiedTypeInliner.reifyInstructions(node.instructions);
@@ -251,7 +254,7 @@ public class InlineCodegen extends CallGenerator {
 
         MethodInliner inliner = new MethodInliner(node, parameters, info, new FieldRemapper(null, null, parameters), isSameModule,
                                                   "Method inlining " + callElement.getText(),
-                                                  new NestedSourceMapper(sourceMapper, nodeAndSmap)); //with captured
+                                                  new NestedSourceMapper(sourceMapper, nodeAndSmap.getRanges(), sourceInfo)); //with captured
 
         LocalVarRemapper remapper = new LocalVarRemapper(parameters, initialFrameSize);
 
@@ -308,8 +311,7 @@ public class InlineCodegen extends CallGenerator {
 
         SMAP smap = generateMethodBody(adapter, descriptor, context, declaration, jvmMethodSignature);
         adapter.visitMaxs(-1, -1);
-        FileMapping mapping = smap.getFileMappings().get(0);
-        return new SMAPAndMethodNode(methodNode, mapping.getName(), mapping.getPath(), smap);
+        return new SMAPAndMethodNode(methodNode, smap);
     }
 
     private SMAP generateMethodBody(
@@ -319,7 +321,8 @@ public class InlineCodegen extends CallGenerator {
             @NotNull JetDeclarationWithBody declaration,
             @NotNull JvmMethodSignature jvmMethodSignature
     ) {
-        FakeMemberCodegen parentCodegen = new FakeMemberCodegen(codegen.getParentCodegen());
+        FakeMemberCodegen parentCodegen = new FakeMemberCodegen(codegen.getParentCodegen(), declaration,
+                                                                (FieldOwnerContext) context.getParentContext());
         FunctionCodegen.generateMethodBody(
             adapter, descriptor, context, jvmMethodSignature,
             new FunctionGenerationStrategy.FunctionDefault(state, descriptor, declaration),
@@ -345,8 +348,8 @@ public class InlineCodegen extends CallGenerator {
 
         private final MemberCodegen delegate;
 
-        public FakeMemberCodegen(@NotNull MemberCodegen wrapped) {
-            super(wrapped);
+        public FakeMemberCodegen(@NotNull MemberCodegen wrapped, @NotNull JetElement declaration, @NotNull FieldOwnerContext codegenContext) {
+            super(wrapped, declaration, codegenContext);
             delegate = wrapped;
         }
 
