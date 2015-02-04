@@ -45,11 +45,12 @@ public class CompositeBindingContext private (
     }
 
     override fun <K, V> getSliceContents(slice: ReadOnlySlice<K, V>): ImmutableMap<K, V> {
-        val builder = ImmutableMap.builder<K, V>()!!
-        for (delegate in delegates) {
-            builder.putAll(delegate.getSliceContents(slice))
-        }
-        return builder.build()!!
+        //we need intermediate map cause ImmutableMap doesn't support same entries obtained from different slices
+        var map = hashMapOf<K, V>()
+        delegates.forEach { map.putAll(it.getSliceContents(slice)) }
+        val builder = ImmutableMap.builder<K, V>()
+
+        return builder.putAll(map).build()
     }
 
     override fun getDiagnostics(): Diagnostics {
