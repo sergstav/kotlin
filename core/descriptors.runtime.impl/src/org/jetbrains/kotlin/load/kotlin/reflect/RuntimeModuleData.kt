@@ -22,9 +22,12 @@ import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.platform.JavaToKotlinClassMap
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.di.InjectorForRuntimeDescriptorLoader
+import org.jetbrains.kotlin.serialization.deserialization.DeserializationComponents
 
 public class RuntimeModuleData private(private val injector: InjectorForRuntimeDescriptorLoader) {
     public val module: ModuleDescriptor get() = injector.getModuleDescriptor()
+
+    public val deserializationComponents: DeserializationComponents get() = injector.getDeserializationComponentsForJava().components
 
     class object {
         public fun create(classLoader: ClassLoader): RuntimeModuleData {

@@ -18,6 +18,7 @@ package org.jetbrains.kotlin.di;
 
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor;
 import org.jetbrains.kotlin.resolve.jvm.JavaDescriptorResolver;
+import org.jetbrains.kotlin.load.kotlin.DeserializationComponentsForJava;
 import org.jetbrains.kotlin.load.java.components.RuntimeExternalSignatureResolver;
 import org.jetbrains.kotlin.load.java.components.RuntimeJavaResolverCache;
 import org.jetbrains.kotlin.load.java.components.RuntimeErrorReporter;
@@ -33,7 +34,6 @@ import org.jetbrains.kotlin.load.kotlin.reflect.ReflectKotlinClassFinder;
 import org.jetbrains.kotlin.load.java.lazy.LazyJavaPackageFragmentProvider;
 import org.jetbrains.kotlin.load.java.lazy.GlobalJavaResolverContext;
 import org.jetbrains.kotlin.load.kotlin.DeserializedDescriptorResolver;
-import org.jetbrains.kotlin.load.kotlin.DeserializationComponentsForJava;
 import org.jetbrains.kotlin.load.kotlin.JavaClassDataFinder;
 import org.jetbrains.kotlin.load.kotlin.BinaryClassAnnotationAndConstantLoaderImpl;
 import org.jetbrains.annotations.NotNull;
@@ -46,6 +46,7 @@ public class InjectorForRuntimeDescriptorLoader {
     private final ClassLoader classLoader;
     private final ModuleDescriptor moduleDescriptor;
     private final JavaDescriptorResolver javaDescriptorResolver;
+    private final DeserializationComponentsForJava deserializationComponentsForJava;
     private final RuntimeExternalSignatureResolver runtimeExternalSignatureResolver;
     private final RuntimeJavaResolverCache runtimeJavaResolverCache;
     private final RuntimeErrorReporter runtimeErrorReporter;
@@ -61,7 +62,6 @@ public class InjectorForRuntimeDescriptorLoader {
     private final LazyJavaPackageFragmentProvider lazyJavaPackageFragmentProvider;
     private final GlobalJavaResolverContext globalJavaResolverContext;
     private final DeserializedDescriptorResolver deserializedDescriptorResolver;
-    private final DeserializationComponentsForJava deserializationComponentsForJava;
     private final JavaClassDataFinder javaClassDataFinder;
     private final BinaryClassAnnotationAndConstantLoaderImpl binaryClassAnnotationAndConstantLoader;
 
@@ -107,6 +107,10 @@ public class InjectorForRuntimeDescriptorLoader {
 
     public JavaDescriptorResolver getJavaDescriptorResolver() {
         return this.javaDescriptorResolver;
+    }
+
+    public DeserializationComponentsForJava getDeserializationComponentsForJava() {
+        return this.deserializationComponentsForJava;
     }
 
 }

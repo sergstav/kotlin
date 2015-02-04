@@ -152,6 +152,7 @@ private fun generatorForRuntimeDescriptorLoader() =
             publicParameter<ModuleDescriptor>()
 
             publicField<JavaDescriptorResolver>()
+            publicField<DeserializationComponentsForJava>()
 
             field<RuntimeExternalSignatureResolver>()
             field<RuntimeJavaResolverCache>()
