@@ -192,7 +192,7 @@ public class InlineCodegenUtil {
             return PackageClassUtils.getPackageClassId(getFqName(containerDescriptor).toSafe());
         }
         if (containerDescriptor instanceof ClassDescriptor) {
-            ClassId classId = DeserializedResolverUtils.getClassId((ClassDescriptor) containerDescriptor);
+            ClassId classId = DeserializedResolverUtils.kotlinClassIdToJavaClassId(DeserializedResolverUtils.getClassId((ClassDescriptor) containerDescriptor));
             if (isTrait(containerDescriptor)) {
                 FqNameUnsafe shortName = classId.getRelativeClassName();
                 classId = new ClassId(classId.getPackageFqName(), new FqNameUnsafe(shortName.shortName().toString() + JvmAbi.TRAIT_IMPL_SUFFIX));
