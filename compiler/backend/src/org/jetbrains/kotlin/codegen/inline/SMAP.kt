@@ -231,7 +231,7 @@ public open class DefaultSourceMapper(val sourceInfo: SourceInfo, override val p
 
     protected fun createMapping(lineNumber: Int): Int {
         val fileMapping = lastVisited!!
-        val mappedLineIndex = fileMapping.mapLine(lineNumber, maxUsedValue, true /*lastMappedWithChanges == lastVisited*/)
+        val mappedLineIndex = fileMapping.mapLine(lineNumber, maxUsedValue, lastMappedWithChanges == lastVisited)
         if (mappedLineIndex > maxUsedValue) {
             lastMappedWithChanges = fileMapping
             maxUsedValue = mappedLineIndex
