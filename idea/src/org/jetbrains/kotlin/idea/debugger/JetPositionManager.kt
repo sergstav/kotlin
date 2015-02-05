@@ -138,7 +138,14 @@ public class JetPositionManager(private val myDebugProcess: DebugProcess) : Mult
 
         val referenceInternalName: String
         try {
-            referenceInternalName = location.sourcePath()
+            if (location.declaringType().availableStrata().contains("Kotlin")) {
+                referenceInternalName = location.sourcePath()
+            } else {
+                //no stratum or source path => use default one
+                val referenceFqName = location.declaringType().name()
+                // JDI names are of form "package.Class$InnerClass"
+                referenceInternalName = referenceFqName.replace('.', '/')
+            }
         }
         catch (e: AbsentInformationException) {
             //no stratum or source path => use default one
