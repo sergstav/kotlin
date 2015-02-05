@@ -520,7 +520,7 @@ public abstract class MemberCodegen<T extends JetElement/* TODO: & JetDeclaratio
 
     public SourceMapper getSourceMapper() {
         if (sourceMapper == null) {
-            sourceMapper = new DefaultSourceMapper(SourceInfo.OBJECT$.createInfo(element, v.getThisName()), null);
+            sourceMapper = new DefaultSourceMapper(SourceInfo.OBJECT$.createInfo(element, getClassName()), null);
         }
         return sourceMapper;
     }

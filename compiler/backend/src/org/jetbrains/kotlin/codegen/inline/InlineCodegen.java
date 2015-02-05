@@ -209,8 +209,10 @@ public class InlineCodegen extends CallGenerator {
 
             SMAP smap;
             if (callDefault) {
+                Type ownerType = typeMapper.mapOwner(functionDescriptor, false/*use facade class*/);
                 FakeMemberCodegen parentCodegen = new FakeMemberCodegen(codegen.getParentCodegen(), (JetNamedFunction) element,
-                                                                        (FieldOwnerContext) methodContext.getParentContext());
+                                                                        (FieldOwnerContext) methodContext.getParentContext(),
+                                                                        ownerType.getInternalName());
                 FunctionCodegen.generateDefaultImplBody(
                         methodContext, functionDescriptor, maxCalcAdapter, DefaultParameterValueLoader.DEFAULT,
                         (JetNamedFunction) element, parentCodegen
@@ -219,7 +221,7 @@ public class InlineCodegen extends CallGenerator {
             }
             else {
                 smap = generateMethodBody(maxCalcAdapter, functionDescriptor, methodContext, (JetDeclarationWithBody) element,
-                                               jvmSignature);
+                                               jvmSignature, false);
             }
 
             nodeAndSMAP = new SMAPAndMethodNode(node, smap);
@@ -309,7 +311,7 @@ public class InlineCodegen extends CallGenerator {
 
         MethodVisitor adapter = InlineCodegenUtil.wrapWithMaxLocalCalc(methodNode);
 
-        SMAP smap = generateMethodBody(adapter, descriptor, context, declaration, jvmMethodSignature);
+        SMAP smap = generateMethodBody(adapter, descriptor, context, declaration, jvmMethodSignature, true);
         adapter.visitMaxs(-1, -1);
         return new SMAPAndMethodNode(methodNode, smap);
     }
@@ -319,15 +321,19 @@ public class InlineCodegen extends CallGenerator {
             @NotNull FunctionDescriptor descriptor,
             @NotNull MethodContext context,
             @NotNull JetDeclarationWithBody declaration,
-            @NotNull JvmMethodSignature jvmMethodSignature
+            @NotNull JvmMethodSignature jvmMethodSignature,
+            boolean isLambda
     ) {
-        FakeMemberCodegen parentCodegen = new FakeMemberCodegen(codegen.getParentCodegen(), declaration,
-                                                                (FieldOwnerContext) context.getParentContext());
+        FakeMemberCodegen parentCodegen =
+                new FakeMemberCodegen(codegen.getParentCodegen(), declaration,
+                                      (FieldOwnerContext) context.getParentContext(),
+                                      isLambda ? codegen.getParentCodegen().getClassName() : typeMapper.mapOwner(descriptor, false).getInternalName());
+
         FunctionCodegen.generateMethodBody(
-            adapter, descriptor, context, jvmMethodSignature,
-            new FunctionGenerationStrategy.FunctionDefault(state, descriptor, declaration),
-            // Wrapping for preventing marking actual parent codegen as containing reifier markers
-            parentCodegen
+                adapter, descriptor, context, jvmMethodSignature,
+                new FunctionGenerationStrategy.FunctionDefault(state, descriptor, declaration),
+                // Wrapping for preventing marking actual parent codegen as containing reifier markers
+                parentCodegen
         );
 
         return createSMAPWithDefaultMapping(declaration, parentCodegen.getSourceMapper().getResultMappings());
@@ -347,10 +353,12 @@ public class InlineCodegen extends CallGenerator {
     private static class FakeMemberCodegen extends MemberCodegen {
 
         private final MemberCodegen delegate;
+        @NotNull private final String className;
 
-        public FakeMemberCodegen(@NotNull MemberCodegen wrapped, @NotNull JetElement declaration, @NotNull FieldOwnerContext codegenContext) {
+        public FakeMemberCodegen(@NotNull MemberCodegen wrapped, @NotNull JetElement declaration, @NotNull FieldOwnerContext codegenContext, @NotNull String className) {
             super(wrapped, declaration, codegenContext);
             delegate = wrapped;
+            this.className = className;
         }
 
         @Override
@@ -372,6 +380,12 @@ public class InlineCodegen extends CallGenerator {
         @Override
         public NameGenerator getInlineNameGenerator() {
             return delegate.getInlineNameGenerator();
+        }
+
+        @NotNull
+        @Override
+        public String getClassName() {
+            return className;
         }
     }
 
