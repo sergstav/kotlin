@@ -5,8 +5,9 @@ import kotlinx.android.synthetic.layout.*
 
 class MyActivity: Activity() {
     val button = this.MyButton
+    val button2 = MyButton
 }
 
-// 1 GETSTATIC
-// 4 INVOKEVIRTUAL
-// 2 CHECKCAST
+// 2 GETSTATIC
+// 5 INVOKEVIRTUAL
+// 3 CHECKCAST
