@@ -119,7 +119,7 @@ public class JetPositionManager(private val myDebugProcess: DebugProcess) : Mult
                 continue
             }
 
-            val internalClassName = getClassNameForElement(literal.getFirstChild(), typeMapper, file, isInLibrary).className
+            val internalClassName = getInternalClassNameForElement(literal.getFirstChild(), typeMapper, file, isInLibrary).className
             if (internalClassName == currentLocationClassName) {
                 return functionLiteral
             }
@@ -189,7 +189,7 @@ public class JetPositionManager(private val myDebugProcess: DebugProcess) : Mult
         return result;
     }
 
-    private fun classNameForPosition(sourcePosition: SourcePosition): String? {
+    public fun classNameForPosition(sourcePosition: SourcePosition): String? {
         val psiElement = sourcePosition.getElementAt()
         if (psiElement == null) {
             return null
@@ -202,7 +202,7 @@ public class JetPositionManager(private val myDebugProcess: DebugProcess) : Mult
             val file = element.getContainingFile() as JetFile
             val isInLibrary = LibraryUtil.findLibraryEntry(file.getVirtualFile(), file.getProject()) != null
             val typeMapper = if (!isInLibrary) prepareTypeMapper(file) else createTypeMapperForLibraryFile(element, file)
-            getClassNameForElement(element, typeMapper, file, isInLibrary).className
+            getInternalClassNameForElement(element, typeMapper, file, isInLibrary).className?.replace('/', '.')
         }
     }
 
@@ -249,7 +249,7 @@ public class JetPositionManager(private val myDebugProcess: DebugProcess) : Mult
         if (classNames.isEmpty()) {
             return null
         }
-        return myDebugProcess.getRequestsManager().createClassPrepareRequest(classPrepareRequestor, classNames.first().replace('/', '.'))
+        return myDebugProcess.getRequestsManager().createClassPrepareRequest(classPrepareRequestor, classNames.first())
     }
 
     override fun createPrepareRequests(classPrepareRequestor: ClassPrepareRequestor, sourcePosition: SourcePosition): MutableList<ClassPrepareRequest> {
@@ -262,7 +262,7 @@ public class JetPositionManager(private val myDebugProcess: DebugProcess) : Mult
         }
         val requests = arrayListOf<ClassPrepareRequest>()
         for (className in classNames) {
-            requests.add(myDebugProcess.getRequestsManager().createClassPrepareRequest(classPrepareRequestor, className.replace('/', '.')))
+            requests.add(myDebugProcess.getRequestsManager().createClassPrepareRequest(classPrepareRequestor, className))
         }
         return requests
     }
@@ -290,13 +290,13 @@ public class JetPositionManager(private val myDebugProcess: DebugProcess) : Mult
             return state.getTypeMapper()
         }
 
-        public fun getClassNameForElement(notPositionedElement: PsiElement?, typeMapper: JetTypeMapper, file: JetFile, isInLibrary: Boolean): PositionedElement {
+        public fun getInternalClassNameForElement(notPositionedElement: PsiElement?, typeMapper: JetTypeMapper, file: JetFile, isInLibrary: Boolean): PositionedElement {
             val element = getElementToCalculateClassName(notPositionedElement)
             when {
                 element is JetClassOrObject -> return PositionedElement(getJvmInternalNameForImpl(typeMapper, element), element)
                 element is JetFunctionLiteral -> {
                     if (isInlinedLambda(element, typeMapper.getBindingContext())) {
-                        return getClassNameForElement(element.getParent(), typeMapper, file, isInLibrary)
+                        return getInternalClassNameForElement(element.getParent(), typeMapper, file, isInLibrary)
                     }
                     else {
                         val asmType = CodegenBinding.asmTypeForAnonymousClass(typeMapper.getBindingContext(), element)
@@ -307,9 +307,9 @@ public class JetPositionManager(private val myDebugProcess: DebugProcess) : Mult
                     val parent = getElementToCalculateClassName(element.getParent())
                     // Class-object initializer
                     if (parent is JetObjectDeclaration && parent.isClassObject()) {
-                        return PositionedElement(getClassNameForElement(parent.getParent(), typeMapper, file, isInLibrary).className, parent)
+                        return PositionedElement(getInternalClassNameForElement(parent.getParent(), typeMapper, file, isInLibrary).className, parent)
                     }
-                    return getClassNameForElement(element, typeMapper, file, isInLibrary)
+                    return getInternalClassNameForElement(element, typeMapper, file, isInLibrary)
                 }
                 element is JetProperty && (!element.isTopLevel() || !isInLibrary) -> {
                     if (isInPropertyAccessor(notPositionedElement)) {
@@ -321,7 +321,7 @@ public class JetPositionManager(private val myDebugProcess: DebugProcess) : Mult
 
                     val descriptor = typeMapper.getBindingContext().get(BindingContext.DECLARATION_TO_DESCRIPTOR, element)
                     if (descriptor !is PropertyDescriptor) {
-                        return getClassNameForElement(element.getParent(), typeMapper, file, isInLibrary)
+                        return getInternalClassNameForElement(element.getParent(), typeMapper, file, isInLibrary)
                     }
 
                     return PositionedElement(getJvmInternalNameForPropertyOwner(typeMapper, descriptor), element)
@@ -438,7 +438,7 @@ public class JetPositionManager(private val myDebugProcess: DebugProcess) : Mult
             if (element != null && jetFile is JetFile) {
                 val isInLibrary = LibraryUtil.findLibraryEntry(jetFile.getVirtualFile(), jetFile.getProject()) != null
                 val typeMapper = if (!isInLibrary) prepareTypeMapper(jetFile) else createTypeMapperForLibraryFile(element, jetFile)
-                val psiElement = getClassNameForElement(element, typeMapper, jetFile, isInLibrary).element;
+                val psiElement = getInternalClassNameForElement(element, typeMapper, jetFile, isInLibrary).element;
 
                 if (psiElement is JetNamedFunction) {
                     val descriptor = typeMapper.getBindingContext().get(BindingContext.DECLARATION_TO_DESCRIPTOR, psiElement)
