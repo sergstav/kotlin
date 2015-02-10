@@ -69,6 +69,21 @@ import org.jetbrains.kotlin.psi.psiUtil.siblings
 import org.jetbrains.kotlin.idea.util.isUnit
 import com.intellij.openapi.editor.ScrollType
 import org.jetbrains.kotlin.psi.psiUtil.isAncestor
+import org.jetbrains.kotlin.load.java.descriptors.JavaClassDescriptor
+import com.intellij.psi.PsiClass
+import org.jetbrains.kotlin.idea.refactoring.createJavaMethod
+import com.intellij.codeInsight.daemon.impl.quickfix.CreateFromUsageUtils
+import com.intellij.psi.PsiMethod
+import com.intellij.openapi.fileEditor.OpenFileDescriptor
+import org.jetbrains.kotlin.psi.typeRefHelpers.setReceiverTypeReference
+import com.intellij.psi.codeStyle.JavaCodeStyleManager
+import com.intellij.psi.PsiModifier
+import com.intellij.openapi.ui.Messages
+import com.intellij.lang.java.JavaLanguage
+import org.jetbrains.kotlin.resolve.scopes.ChainedScope
+import org.jetbrains.kotlin.resolve.scopes.WritableScopeImpl
+import org.jetbrains.kotlin.resolve.scopes.RedeclarationHandler
+import org.jetbrains.kotlin.resolve.scopes.WritableScope
 
 private val TYPE_PARAMETER_LIST_VARIABLE_NAME = "typeParameterList"
 private val TEMPLATE_FROM_USAGE_FUNCTION_BODY = "New Kotlin Function Body.kt"
@@ -227,7 +242,10 @@ class CallableBuilder(val config: CallableBuilderConfiguration) {
                     receiverClassDescriptor =
                             placement.receiverTypeCandidate.theType.getConstructor().getDeclarationDescriptor() as? ClassDescriptor
                     val classDeclaration = receiverClassDescriptor?.let { DescriptorToSourceUtils.classDescriptorToDeclaration(it) }
-                    containingElement = if (config.isExtension) config.currentFile else classDeclaration as JetElement
+                    containingElement = when {
+                        !config.isExtension && classDeclaration is JetElement -> classDeclaration
+                        else -> config.currentFile
+                    }
                 }
                 else -> throw IllegalArgumentException("Unexpected placement: $placement")
             }
@@ -242,12 +260,7 @@ class CallableBuilder(val config: CallableBuilderConfiguration) {
                 containingFileEditor = config.currentEditor
             }
 
-            val scope = if (config.isExtension || receiverClassDescriptor == null) {
-                currentFileModule.getPackage(config.currentFile.getPackageFqName())!!.getMemberScope()
-            }
-            else {
-                (receiverClassDescriptor as ClassDescriptorWithResolutionScopes).getScopeForMemberDeclarationResolution()
-            }
+            val scope = getDeclarationScope()
 
             receiverTypeCandidate = receiverType?.let { TypeCandidate(it, scope) }
 
@@ -294,6 +307,39 @@ class CallableBuilder(val config: CallableBuilderConfiguration) {
             }
             receiverTypeCandidate?.render(typeParameterNameMap, fakeFunction)
             mandatoryTypeParametersAsCandidates.forEach { it.render(typeParameterNameMap, fakeFunction) }
+        }
+
+        private fun getDeclarationScope(): JetScope {
+            if (config.isExtension || receiverClassDescriptor == null) {
+                return currentFileModule.getPackage(config.currentFile.getPackageFqName())!!.getMemberScope()
+            }
+
+            if (receiverClassDescriptor is ClassDescriptorWithResolutionScopes) {
+                return receiverClassDescriptor.getScopeForMemberDeclarationResolution()
+            }
+
+            val typeParamScope = with(
+                    WritableScopeImpl(
+                            JetScope.Empty,
+                            receiverClassDescriptor,
+                            RedeclarationHandler.DO_NOTHING,
+                            "Scope with type parameters for ${receiverClassDescriptor.getName()}"
+                    )
+            ) {
+                receiverClassDescriptor.getTypeConstructor().getParameters().forEach { addClassifierDescriptor(it) }
+                changeLockLevel(WritableScope.LockLevel.READING)
+            }
+
+            val projections = receiverClassDescriptor.getTypeConstructor().getParameters()
+                    .map { TypeProjectionImpl(it.getDefaultType()) }
+            val memberScope = receiverClassDescriptor.getMemberScope(projections)
+
+            return ChainedScope(
+                    receiverClassDescriptor,
+                    "Classifier resolution scope: ${receiverClassDescriptor.getName()}",
+                    typeParamScope,
+                    memberScope
+            )
         }
 
         private fun collectSubstitutionsForReceiverTypeParameters(
@@ -714,6 +760,38 @@ class CallableBuilder(val config: CallableBuilderConfiguration) {
             typeRef.replace(fullyQualifiedReceiverTypeRef)
         }
 
+        private fun transformToJavaMemberIfApplicable(declaration: JetNamedDeclaration): Boolean {
+            if (config.isExtension || receiverClassDescriptor !is JavaClassDescriptor) return false
+
+            val targetClass = DescriptorToSourceUtils.classDescriptorToDeclaration(receiverClassDescriptor) as? PsiClass
+            if (targetClass == null || !targetClass.isWritable() || targetClass.getLanguage() != JavaLanguage.INSTANCE) return false
+
+            val project = declaration.getProject()
+
+            val newJavaMethod: PsiMethod = when (declaration) {
+                is JetNamedFunction -> {
+                    val method = createJavaMethod(declaration, targetClass)
+
+                    val modifierList = method.getModifierList()
+                    modifierList.setModifierProperty(PsiModifier.STATIC, false)
+                    modifierList.setModifierProperty(PsiModifier.FINAL, false)
+
+                    method
+                }
+                else -> return false
+            }
+
+            declaration.delete()
+
+            JavaCodeStyleManager.getInstance(project).shortenClassReferences(newJavaMethod);
+
+            val descriptor = OpenFileDescriptor(project, targetClass.getContainingFile().getVirtualFile())
+            val targetEditor = FileEditorManager.getInstance(project).openTextEditor(descriptor, true)
+            CreateFromUsageUtils.setupEditor(newJavaMethod, targetEditor)
+
+            return true
+        }
+
         private fun setupEditor(declaration: JetNamedDeclaration) {
             val caretModel = containingFileEditor.getCaretModel()
 
@@ -811,12 +889,13 @@ class CallableBuilder(val config: CallableBuilderConfiguration) {
                         if (callElement != null) {
                             setupCallTypeArguments(callElement, expression?.currentTypeParameters ?: Collections.emptyList())
                         }
-
-                        // change short type names to fully qualified ones (to be shortened below)
-                        setupTypeReferencesForShortening(newDeclaration, elementsToShorten, parameterTypeExpressions)
                     }
 
-                    setupEditor(newDeclaration)
+                    if (!transformToJavaMemberIfApplicable(newDeclaration)) {
+                        // change short type names to fully qualified ones (to be shortened below)
+                        setupTypeReferencesForShortening(newDeclaration, elementsToShorten, parameterTypeExpressions)
+                        setupEditor(newDeclaration)
+                    }
 
                     onFinish()
                 }
