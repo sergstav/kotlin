@@ -25,6 +25,7 @@
 
     <build>
         <sourceDirectory>${basedir}/target/tests</sourceDirectory>
+        <outputDirectory>${project.build.directory}/js</outputDirectory>
 
         <plugins>
             <plugin>

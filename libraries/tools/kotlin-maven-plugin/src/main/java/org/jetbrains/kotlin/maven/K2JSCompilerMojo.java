@@ -41,7 +41,7 @@ public class K2JSCompilerMojo extends KotlinCompileMojoBase<K2JSCompilerArgument
      * The output JS file name
      *
      * @required
-     * @parameter default-value="${project.build.directory}/js/${project.artifactId}.js"
+     * @parameter default-value="${project.build.outputDirectory}/${project.artifactId}.js"
      */
     private String outputFile;
 

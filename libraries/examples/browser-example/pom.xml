@@ -46,6 +46,7 @@
         <defaultGoal>install</defaultGoal>
         <sourceDirectory>src/main/kotlin</sourceDirectory>
         <testSourceDirectory>src/test/kotlin</testSourceDirectory>
+        <outputDirectory>${project.build.directory}/js</outputDirectory>
 
         <plugins>
             <plugin>
