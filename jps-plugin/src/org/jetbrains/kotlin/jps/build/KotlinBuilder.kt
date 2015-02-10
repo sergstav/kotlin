@@ -68,7 +68,7 @@ import org.jetbrains.kotlin.resolve.jvm.JvmClassName
 import org.jetbrains.jps.model.module.JpsModule
 import org.jetbrains.jps.android.AndroidJpsUtil
 import org.jetbrains.kotlin.utils.sure
-import org.jetbrains.jet.jps.build.KotlinJpsCompilerArgumentsProvider
+import org.jetbrains.kotlin.jps.build.KotlinJpsCompilerArgumentsProvider
 
 public class KotlinBuilder : ModuleLevelBuilder(BuilderCategory.SOURCE_PROCESSOR) {
     class object {
