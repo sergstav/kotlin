@@ -982,7 +982,7 @@ public class ImplementationBodyCodegen extends ClassBodyCodegen {
         v.newField(OtherOrigin(classObject), ACC_PUBLIC | ACC_STATIC | ACC_FINAL, field.name, field.type.getDescriptor(), null, null);
 
         StackValue.Field deprecatedField = StackValue.deprecatedClassObjectAccessor(classObjectDescriptor, typeMapper);
-        v.newField(OtherOrigin(classObject), ACC_PUBLIC | ACC_STATIC | ACC_FINAL | ACC_DEPRECATED,
+        v.newField(JvmDeclarationOrigin.NO_ORIGIN, ACC_PUBLIC | ACC_STATIC | ACC_FINAL | ACC_DEPRECATED,
                    deprecatedField.name, deprecatedField.type.getDescriptor(), null, null);
 
         if (state.getClassBuilderMode() != ClassBuilderMode.FULL) return;
