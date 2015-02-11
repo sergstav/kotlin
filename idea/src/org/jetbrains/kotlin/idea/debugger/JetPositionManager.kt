@@ -202,7 +202,7 @@ public class JetPositionManager(private val myDebugProcess: DebugProcess) : Mult
             val file = element.getContainingFile() as JetFile
             val isInLibrary = LibraryUtil.findLibraryEntry(file.getVirtualFile(), file.getProject()) != null
             val typeMapper = if (!isInLibrary) prepareTypeMapper(file) else createTypeMapperForLibraryFile(element, file)
-            getInternalClassNameForElement(element, typeMapper, file, isInLibrary).className?.replace('/', '.')
+            getInternalClassNameForElement(element, typeMapper, file, isInLibrary).className
         }
     }
 
@@ -249,7 +249,7 @@ public class JetPositionManager(private val myDebugProcess: DebugProcess) : Mult
         if (classNames.isEmpty()) {
             return null
         }
-        return myDebugProcess.getRequestsManager().createClassPrepareRequest(classPrepareRequestor, classNames.first())
+        return myDebugProcess.getRequestsManager().createClassPrepareRequest(classPrepareRequestor, classNames.first().replace('/', '.'))
     }
 
     override fun createPrepareRequests(classPrepareRequestor: ClassPrepareRequestor, sourcePosition: SourcePosition): MutableList<ClassPrepareRequest> {
@@ -262,7 +262,7 @@ public class JetPositionManager(private val myDebugProcess: DebugProcess) : Mult
         }
         val requests = arrayListOf<ClassPrepareRequest>()
         for (className in classNames) {
-            requests.add(myDebugProcess.getRequestsManager().createClassPrepareRequest(classPrepareRequestor, className))
+            requests.add(myDebugProcess.getRequestsManager().createClassPrepareRequest(classPrepareRequestor, className.replace('/', '.')))
         }
         return requests
     }

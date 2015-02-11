@@ -61,7 +61,7 @@ public class ExtraSteppingFilter : engine.ExtraSteppingFilter {
 
         if (sourcePosition == null) return false
 
-        val className = positionManager.classNameForPosition(sourcePosition)
+        val className = positionManager.classNameForPosition(sourcePosition)?.replace('/', '.')
 
         if (className != null) {
             val settings = DebuggerSettings.getInstance()
