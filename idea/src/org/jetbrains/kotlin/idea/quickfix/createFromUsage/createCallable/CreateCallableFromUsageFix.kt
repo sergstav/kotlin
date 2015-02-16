@@ -88,7 +88,14 @@ public class CreateCallableFromUsageFix(
         val callableBuilder =
                 CallableBuilderConfiguration(callableInfos, element as JetExpression, file, editor, isExtension).createBuilder()
         val receiverTypeCandidates = callableBuilder.computeTypeCandidates(callableInfos.first().receiverTypeInfo)
-        return receiverTypeCandidates.any { getDeclarationIfApplicable(project, it) != null }
+        val isProperty = callableInfos.any { it.kind == CallableKind.PROPERTY }
+        return receiverTypeCandidates.any {
+            val declaration = getDeclarationIfApplicable(project, it)
+            when {
+                isProperty && declaration is PsiClass && declaration.isInterface() -> false
+                else -> declaration != null
+            }
+        }
     }
 
     override fun invoke(project: Project, editor: Editor?, file: JetFile?) {
