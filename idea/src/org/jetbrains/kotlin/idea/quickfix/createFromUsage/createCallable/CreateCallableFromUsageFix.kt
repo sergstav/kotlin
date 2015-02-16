@@ -84,16 +84,24 @@ public class CreateCallableFromUsageFix(
         file as JetFile
 
         if (receiverInfo is TypeInfo.Empty) return !isExtension
+        // TODO: Remove after class object extensions are supported
+        if (isExtension && receiverInfo.classObjectRequired) return false
 
         val callableBuilder =
                 CallableBuilderConfiguration(callableInfos, element as JetExpression, file, editor, isExtension).createBuilder()
         val receiverTypeCandidates = callableBuilder.computeTypeCandidates(callableInfos.first().receiverTypeInfo)
-        val isProperty = callableInfos.any { it.kind == CallableKind.PROPERTY }
+        val propertyInfo = callableInfos.firstOrNull { it is PropertyInfo } as PropertyInfo?
+        val isFunction = callableInfos.any { it.kind == CallableKind.FUNCTION }
         return receiverTypeCandidates.any {
             val declaration = getDeclarationIfApplicable(project, it)
             when {
-                isProperty && declaration is PsiClass && declaration.isInterface() -> false
-                else -> declaration != null
+                propertyInfo != null && declaration is PsiClass && declaration.isInterface()
+                && (!receiverInfo.classObjectRequired || propertyInfo.writable) ->
+                    false
+                isFunction && declaration is PsiClass && declaration.isInterface() && receiverInfo.classObjectRequired ->
+                    false
+                else ->
+                    declaration != null
             }
         }
     }
