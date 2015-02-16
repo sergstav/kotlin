@@ -32,11 +32,7 @@ import org.jetbrains.kotlin.codegen.AbstractTopLevelMembersInvocationTest
 import org.jetbrains.kotlin.codegen.AbstractCheckLocalVariablesTableTest
 import org.jetbrains.kotlin.codegen.flags.AbstractWriteFlagsTest
 import org.jetbrains.kotlin.codegen.defaultConstructor.AbstractDefaultArgumentsReflectionTest
-import org.jetbrains.kotlin.jvm.compiler.AbstractLoadJavaTest
-import org.jetbrains.kotlin.jvm.compiler.AbstractCompileJavaAgainstKotlinTest
-import org.jetbrains.kotlin.jvm.compiler.AbstractCompileKotlinAgainstKotlinTest
 import org.jetbrains.kotlin.modules.xml.AbstractModuleXmlParserTest
-import org.jetbrains.kotlin.jvm.compiler.AbstractWriteSignatureTest
 import org.jetbrains.kotlin.cli.AbstractKotlincExecutableTest
 import org.jetbrains.kotlin.repl.AbstractReplInterpreterTest
 import org.jetbrains.kotlin.cfg.AbstractControlFlowTest
@@ -143,6 +139,8 @@ import org.jetbrains.kotlin.codegen.AbstractLineNumberTest
 import org.jetbrains.kotlin.completion.handlers.AbstractKeywordCompletionHandlerTest
 import org.jetbrains.kotlin.idea.kdoc.AbstractKDocHighlightingTest
 import org.jetbrains.kotlin.addImport.AbstractAddImportTest
+import org.jetbrains.kotlin.codegen.generated.AbstractBlackBoxInlineCodegenTest
+import org.jetbrains.kotlin.jvm.compiler.*
 
 fun main(args: Array<String>) {
     System.setProperty("java.awt.headless", "true")
@@ -187,11 +185,11 @@ fun main(args: Array<String>) {
             model("codegen/box")
         }
 
-        testClass(javaClass<AbstractBlackBoxCodegenTest>(), "BlackBoxInlineCodegenTestGenerated") {
+        testClass(javaClass<AbstractBlackBoxInlineCodegenTest>(), "BlackBoxInlineCodegenTestGenerated") {
             model("codegen/boxInline", extension = "1.kt", testMethod = "doTestMultiFileWithInlineCheck")
         }
 
-        testClass(javaClass<AbstractCompileKotlinAgainstKotlinTest>(), "CompileKotlinAgainstInlineKotlinTestGenerated") {
+        testClass(javaClass<AbstractCompileKotlinAgainstInlineKotlinTest>(), "CompileKotlinAgainstInlineKotlinTestGenerated") {
             model("codegen/boxInline", extension = "1.kt", testMethod = "doBoxTestWithInlineCheck")
         }
 

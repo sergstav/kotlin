@@ -68,41 +68,6 @@ public abstract class AbstractCompileKotlinAgainstKotlinTest extends TestCaseWit
         invokeMain();
     }
 
-    public void doBoxTestWithInlineCheck(@NotNull String firstFileName) throws Exception {
-        List<String> inputFiles = new ArrayList<String>(2);
-        inputFiles.add(firstFileName);
-        inputFiles.add(firstFileName.substring(0, firstFileName.length() - "1.kt".length()) + "2.kt");
-
-        List<OutputFile> files = doBoxTest(inputFiles);
-        InlineTestUtil.checkNoCallsToInline(files);
-    }
-
-    @NotNull
-    private List<OutputFile> doBoxTest(@NotNull List<String> files) throws Exception {
-        Collections.sort(files);
-
-        ClassFileFactory factory1 = null;
-        ClassFileFactory factory2 = null;
-        try {
-            factory1 = (ClassFileFactory) compileA(new File(files.get(1)));
-            factory2 = (ClassFileFactory) compileB(new File(files.get(0)));
-            invokeBox();
-        } catch (Throwable e) {
-            String result = "";
-            if (factory1 != null) {
-                result += "FIRST: \n\n" + factory1.createText();
-            }
-            if (factory2 != null) {
-                result += "\n\nSECOND: \n\n" + factory2.createText();
-            }
-            System.out.println(result);
-            throw UtilsPackage.rethrow(e);
-        }
-
-        List<OutputFile> allGeneratedFiles = new ArrayList<OutputFile>(factory1.asList());
-        allGeneratedFiles.addAll(factory2.asList());
-        return allGeneratedFiles;
-    }
 
     private void invokeMain() throws Exception {
         URLClassLoader classLoader = new URLClassLoader(
@@ -114,7 +79,7 @@ public abstract class AbstractCompileKotlinAgainstKotlinTest extends TestCaseWit
         main.invoke(null, new Object[] {ArrayUtil.EMPTY_STRING_ARRAY});
     }
 
-    private void invokeBox() throws Exception {
+    protected void invokeBox() throws Exception {
         URLClassLoader classLoader = new URLClassLoader(
                 new URL[]{ bDir.toURI().toURL(), aDir.toURI().toURL(), ForTestCompileRuntime.runtimeJarForTests().toURI().toURL() },
                 AbstractCompileKotlinAgainstKotlinTest.class.getClassLoader()
@@ -125,13 +90,13 @@ public abstract class AbstractCompileKotlinAgainstKotlinTest extends TestCaseWit
         assertEquals("OK", result);
     }
 
-    private OutputFileCollection compileA(@NotNull File ktAFile) throws IOException {
+    protected OutputFileCollection compileA(@NotNull File ktAFile) throws IOException {
         JetCoreEnvironment jetCoreEnvironment = JetTestUtils.createEnvironmentWithMockJdkAndIdeaAnnotations(getTestRootDisposable(),
                                                                                                             ConfigurationKind.ALL);
         return compileKotlin(ktAFile, aDir, jetCoreEnvironment, getTestRootDisposable());
     }
 
-    private OutputFileCollection compileB(@NotNull File ktBFile) throws IOException {
+    protected OutputFileCollection compileB(@NotNull File ktBFile) throws IOException {
         CompilerConfiguration configurationWithADirInClasspath = JetTestUtils
                 .compilerConfigurationForTests(ConfigurationKind.ALL, TestJdkKind.MOCK_JDK, JetTestUtils.getAnnotationsJar(), aDir);
 

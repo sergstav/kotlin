@@ -193,4 +193,8 @@ public class ClassFileFactory implements OutputFileCollection {
             generators.remove(classInternalName + ".class");
         }
     }
+
+    public List<JetFile> getInputFiles() {
+        return state.getFiles();
+    }
 }
