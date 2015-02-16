@@ -14,9 +14,15 @@
  * limitations under the License.
  */
 
-package org.jetbrains.kotlin.compilerRunner;
+package org.jetbrains.kotlin.config;
 
-public class CompilerRunnerConstants {
-    public static final String KOTLIN_COMPILER_NAME = "Kotlin";
-    public static final String INTERNAL_ERROR_PREFIX = "[Internal Error] ";
+public class SettingConstants {
+    private SettingConstants() {}
+
+    public static final String KOTLIN_COMMON_COMPILER_ARGUMENTS_SECTION = "KotlinCommonCompilerArguments";
+    public static final String KOTLIN_TO_JS_COMPILER_ARGUMENTS_SECTION = "Kotlin2JsCompilerArguments";
+    public static final String KOTLIN_TO_JVM_COMPILER_ARGUMENTS_SECTION = "Kotlin2JvmCompilerArguments";
+    public static final String KOTLIN_COMPILER_SETTINGS_SECTION = "KotlinCompilerSettings";
+
+    public static final String KOTLIN_COMPILER_SETTINGS_FILE = "kotlinc.xml";
 }
