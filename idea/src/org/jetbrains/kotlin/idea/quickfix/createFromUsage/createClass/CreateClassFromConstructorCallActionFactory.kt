@@ -33,6 +33,7 @@ import org.jetbrains.kotlin.idea.caches.resolve.analyzeFullyAndGetResult
 import org.jetbrains.kotlin.psi.JetFile
 import org.jetbrains.kotlin.psi.JetAnnotationEntry
 import java.util.Collections
+import com.intellij.psi.PsiClass
 
 public object CreateClassFromConstructorCallActionFactory: JetSingleIntentionActionFactory() {
     override fun createAction(diagnostic: Diagnostic): IntentionAction? {

@@ -75,14 +75,17 @@ import org.jetbrains.kotlin.idea.refactoring.createJavaMethod
 import com.intellij.codeInsight.daemon.impl.quickfix.CreateFromUsageUtils
 import com.intellij.psi.PsiMethod
 import com.intellij.openapi.fileEditor.OpenFileDescriptor
-import org.jetbrains.kotlin.psi.typeRefHelpers.setReceiverTypeReference
 import com.intellij.psi.codeStyle.JavaCodeStyleManager
 import com.intellij.psi.PsiModifier
-import com.intellij.openapi.ui.Messages
 import com.intellij.lang.java.JavaLanguage
 import org.jetbrains.kotlin.idea.refactoring.createJavaField
 import com.intellij.psi.PsiField
 import com.intellij.psi.PsiMember
+import org.jetbrains.kotlin.idea.refactoring.createJavaClass
+import org.jetbrains.kotlin.idea.caches.resolve.getJavaClassDescriptor
+import com.intellij.psi.PsiNamedElement
+import com.intellij.psi.PsiMethodCallExpression
+import com.intellij.psi.PsiExpressionStatement
 import org.jetbrains.kotlin.resolve.scopes.ChainedScope
 import org.jetbrains.kotlin.resolve.scopes.WritableScopeImpl
 import org.jetbrains.kotlin.resolve.scopes.RedeclarationHandler
@@ -143,7 +146,7 @@ class CallableBuilderConfiguration(
 
 trait CallablePlacement {
     class WithReceiver(val receiverTypeCandidate: TypeCandidate): CallablePlacement
-    class NoReceiver(val containingElement: JetElement): CallablePlacement
+    class NoReceiver(val containingElement: PsiElement): CallablePlacement
 }
 
 class CallableBuilder(val config: CallableBuilderConfiguration) {
@@ -238,8 +241,14 @@ class CallableBuilder(val config: CallableBuilderConfiguration) {
             val placement = placement
             when {
                 placement is CallablePlacement.NoReceiver -> {
-                    containingElement = placement.containingElement
-                    receiverClassDescriptor = (containingElement as? JetClassOrObject)?.let { currentFileContext[BindingContext.CLASS, it] }
+                    containingElement = placement.containingElement as? JetElement ?: config.currentFile
+                    receiverClassDescriptor = with (placement.containingElement) {
+                        when (this) {
+                            is JetClassOrObject -> currentFileContext[BindingContext.CLASS, this]
+                            is PsiClass -> getJavaClassDescriptor()
+                            else -> null
+                        }
+                    }
                 }
                 placement is CallablePlacement.WithReceiver -> {
                     receiverClassDescriptor =
@@ -442,9 +451,15 @@ class CallableBuilder(val config: CallableBuilderConfiguration) {
                             }
                             when (kind) {
                                 ClassKind.ENUM_ENTRY -> {
-                                    if (!(targetParent is JetClass && targetParent.isEnum())) throw AssertionError("Enum class expected: ${targetParent.getText()}")
-                                    val hasParameters = targetParent.getPrimaryConstructorParameters().isNotEmpty()
-                                    psiFactory.createEnumEntry("$name ${if (hasParameters) ": ${targetParent.getName()}()" else ""}")
+                                    val hasParameters = when {
+                                        targetParent is JetClass && targetParent.isEnum() ->
+                                            targetParent.getPrimaryConstructorParameters().isNotEmpty()
+                                        targetParent is PsiClass && targetParent.isEnum() ->
+                                            targetParent.getConstructors().all { it.getParameterList().getParametersCount() > 0 }
+                                        else -> throw AssertionError("Enum class expected: ${targetParent.getText()}")
+                                    }
+                                    val enumName = (targetParent as PsiNamedElement).getName()
+                                    psiFactory.createEnumEntry("$name ${if (hasParameters) ": $enumName()" else ""}")
                                 }
                                 else -> {
                                     val openMod = if (open) "open " else ""
@@ -563,8 +578,9 @@ class CallableBuilder(val config: CallableBuilderConfiguration) {
         }
 
         private fun setupTypeReferencesForShortening(declaration: JetNamedDeclaration,
-                                                     typeRefsToShorten: MutableList<JetElement>,
-                                                     parameterTypeExpressions: List<TypeExpression>) {
+                                                     parameterTypeExpressions: List<TypeExpression>): List<JetElement> {
+            val typeRefsToShorten = ArrayList<JetElement>()
+
             if (config.isExtension) {
                 val receiverTypeRef = JetPsiFactory(declaration).createType(receiverTypeCandidate!!.theType.renderLong(typeParameterNameMap))
                 replaceWithLongerName(receiverTypeRef, receiverTypeCandidate.theType)
@@ -609,6 +625,8 @@ class CallableBuilder(val config: CallableBuilderConfiguration) {
             parameterIndicesToShorten.stream()
                     .map { expandedValueParameters[it].getTypeReference() }
                     .filterNotNullTo(typeRefsToShorten)
+
+            return typeRefsToShorten
         }
 
         private fun setupFunctionBody(func: JetNamedFunction) {
@@ -780,12 +798,29 @@ class CallableBuilder(val config: CallableBuilderConfiguration) {
                 is JetProperty -> {
                     createJavaField(declaration, targetClass)
                 }
+                is JetClass -> {
+                    createJavaClass(declaration, targetClass)
+                }
                 else -> return false
+            }
+
+            val modifierList = newJavaMember.getModifierList()
+            if (newJavaMember is PsiMethod || newJavaMember is PsiClass) {
+                modifierList.setModifierProperty(PsiModifier.FINAL, false)
+            }
+            if (newJavaMember is PsiClass && newJavaMember.isEnum()) {
+                modifierList.setModifierProperty(PsiModifier.STATIC, false)
             }
 
             declaration.delete()
 
-            newJavaMember.getModifierList().setModifierProperty(PsiModifier.STATIC, callableInfo.receiverTypeInfo.classObjectRequired)
+            val needStatic = when (callableInfo) {
+                is ConstructorInfo -> with(callableInfo.classInfo) {
+                    !inner && kind != ClassKind.ENUM_ENTRY && kind != ClassKind.ENUM_CLASS
+                }
+                else -> callableInfo.receiverTypeInfo.classObjectRequired
+            }
+            modifierList.setModifierProperty(PsiModifier.STATIC, needStatic)
 
             JavaCodeStyleManager.getInstance(project).shortenClassReferences(newJavaMember);
 
@@ -794,6 +829,17 @@ class CallableBuilder(val config: CallableBuilderConfiguration) {
             when (newJavaMember) {
                 is PsiMethod -> CreateFromUsageUtils.setupEditor(newJavaMember, targetEditor)
                 is PsiField -> targetEditor.getCaretModel().moveToOffset(newJavaMember.getTextRange().getEndOffset() - 1)
+                is PsiClass -> {
+                    val constructor = newJavaMember.getConstructors().firstOrNull()
+                    val superCall = (constructor?.getBody()?.getStatements()?.firstOrNull() as? PsiExpressionStatement)
+                            ?.getExpression() as? PsiMethodCallExpression
+                    if (superCall != null) {
+                        targetEditor.getCaretModel().moveToOffset(superCall.getArgumentList().getFirstChild().getTextRange().getEndOffset())
+                    }
+                    else {
+                        targetEditor.getCaretModel().moveToOffset(newJavaMember.getTextRange().getStartOffset())
+                    }
+                }
             }
 
             return true
@@ -898,9 +944,10 @@ class CallableBuilder(val config: CallableBuilderConfiguration) {
                         }
                     }
 
+                    // change short type names to fully qualified ones (to be shortened below)
+                    val typeRefsToShorten = setupTypeReferencesForShortening(newDeclaration, parameterTypeExpressions)
                     if (!transformToJavaMemberIfApplicable(newDeclaration)) {
-                        // change short type names to fully qualified ones (to be shortened below)
-                        setupTypeReferencesForShortening(newDeclaration, elementsToShorten, parameterTypeExpressions)
+                        elementsToShorten.addAll(typeRefsToShorten)
                         setupEditor(newDeclaration)
                     }
 
