@@ -275,11 +275,6 @@ public class QualifiedExpressionResolver {
         results.add(lookupSimpleNameReference(selector, scope, lookupMode, false));
 
         results.add(lookupSimpleNameReference(selector, descriptor.getStaticScope(), lookupMode, true));
-
-        ClassDescriptor classObject = descriptor.getDefaultObjectDescriptor();
-        if (classObject != null) {
-            addResultsForClass(results, selector, lookupMode, classObject);
-        }
     }
 
 
