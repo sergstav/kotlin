@@ -85,8 +85,7 @@ public class CodegenTestFiles {
         for (String name : names) {
             try {
                 String content = JetTestUtils.doLoadFile(JetTestUtils.getTestDataPathBase() + "/codegen/", name);
-                int i = name.lastIndexOf('/');
-                //name = name.substring(i+1);
+                //name = name.substring(name.lastIndexOf('/') +1);
                 JetFile file = JetTestUtils.createFile(name, content, project);
                 files.add(file);
             } catch (IOException e) {
