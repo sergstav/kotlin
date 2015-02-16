@@ -137,13 +137,9 @@ public final class DebugProtoBuf {
      */
     PRIVATE_TO_THIS(4, 4),
     /**
-     * <code>EXTRA = 5;</code>
-     *
-     * <pre>
-     * there's an extra field for the actual visibility
-     * </pre>
+     * <code>LOCAL = 5;</code>
      */
-    EXTRA(5, 5),
+    LOCAL(5, 5),
     ;
 
     /**
@@ -171,13 +167,9 @@ public final class DebugProtoBuf {
      */
     public static final int PRIVATE_TO_THIS_VALUE = 4;
     /**
-     * <code>EXTRA = 5;</code>
-     *
-     * <pre>
-     * there's an extra field for the actual visibility
-     * </pre>
+     * <code>LOCAL = 5;</code>
      */
-    public static final int EXTRA_VALUE = 5;
+    public static final int LOCAL_VALUE = 5;
 
 
     public final int getNumber() { return value; }
@@ -189,7 +181,7 @@ public final class DebugProtoBuf {
         case 2: return PROTECTED;
         case 3: return PUBLIC;
         case 4: return PRIVATE_TO_THIS;
-        case 5: return EXTRA;
+        case 5: return LOCAL;
         default: return null;
       }
     }
@@ -1032,6 +1024,10 @@ public final class DebugProtoBuf {
          * <code>PACKAGE = 1;</code>
          */
         PACKAGE(1, 1),
+        /**
+         * <code>LOCAL = 2;</code>
+         */
+        LOCAL(2, 2),
         ;
 
         /**
@@ -1042,6 +1038,10 @@ public final class DebugProtoBuf {
          * <code>PACKAGE = 1;</code>
          */
         public static final int PACKAGE_VALUE = 1;
+        /**
+         * <code>LOCAL = 2;</code>
+         */
+        public static final int LOCAL_VALUE = 2;
 
 
         public final int getNumber() { return value; }
@@ -1050,6 +1050,7 @@ public final class DebugProtoBuf {
           switch (value) {
             case 0: return CLASS;
             case 1: return PACKAGE;
+            case 2: return LOCAL;
             default: return null;
           }
         }
@@ -9276,33 +9277,6 @@ public final class DebugProtoBuf {
      */
     int getFlags();
 
-    // optional string extra_visibility = 2;
-    /**
-     * <code>optional string extra_visibility = 2;</code>
-     *
-     * <pre>
-     * for things like java-specific visibilities
-     * </pre>
-     */
-    boolean hasExtraVisibility();
-    /**
-     * <code>optional string extra_visibility = 2;</code>
-     *
-     * <pre>
-     * for things like java-specific visibilities
-     * </pre>
-     */
-    java.lang.String getExtraVisibility();
-    /**
-     * <code>optional string extra_visibility = 2;</code>
-     *
-     * <pre>
-     * for things like java-specific visibilities
-     * </pre>
-     */
-    com.google.protobuf.ByteString
-        getExtraVisibilityBytes();
-
     // required int32 fq_name = 3;
     /**
      * <code>required int32 fq_name = 3;</code>
@@ -9531,41 +9505,36 @@ public final class DebugProtoBuf {
               flags_ = input.readInt32();
               break;
             }
-            case 18: {
-              bitField0_ |= 0x00000002;
-              extraVisibility_ = input.readBytes();
-              break;
-            }
             case 24: {
-              bitField0_ |= 0x00000004;
+              bitField0_ |= 0x00000002;
               fqName_ = input.readInt32();
               break;
             }
             case 32: {
-              bitField0_ |= 0x00000008;
+              bitField0_ |= 0x00000004;
               classObjectName_ = input.readInt32();
               break;
             }
             case 42: {
-              if (!((mutable_bitField0_ & 0x00000010) == 0x00000010)) {
+              if (!((mutable_bitField0_ & 0x00000008) == 0x00000008)) {
                 typeParameter_ = new java.util.ArrayList<org.jetbrains.kotlin.serialization.DebugProtoBuf.TypeParameter>();
-                mutable_bitField0_ |= 0x00000010;
+                mutable_bitField0_ |= 0x00000008;
               }
               typeParameter_.add(input.readMessage(org.jetbrains.kotlin.serialization.DebugProtoBuf.TypeParameter.PARSER, extensionRegistry));
               break;
             }
             case 50: {
-              if (!((mutable_bitField0_ & 0x00000020) == 0x00000020)) {
+              if (!((mutable_bitField0_ & 0x00000010) == 0x00000010)) {
                 supertype_ = new java.util.ArrayList<org.jetbrains.kotlin.serialization.DebugProtoBuf.Type>();
-                mutable_bitField0_ |= 0x00000020;
+                mutable_bitField0_ |= 0x00000010;
               }
               supertype_.add(input.readMessage(org.jetbrains.kotlin.serialization.DebugProtoBuf.Type.PARSER, extensionRegistry));
               break;
             }
             case 56: {
-              if (!((mutable_bitField0_ & 0x00000040) == 0x00000040)) {
+              if (!((mutable_bitField0_ & 0x00000020) == 0x00000020)) {
                 nestedClassName_ = new java.util.ArrayList<java.lang.Integer>();
-                mutable_bitField0_ |= 0x00000040;
+                mutable_bitField0_ |= 0x00000020;
               }
               nestedClassName_.add(input.readInt32());
               break;
@@ -9573,9 +9542,9 @@ public final class DebugProtoBuf {
             case 58: {
               int length = input.readRawVarint32();
               int limit = input.pushLimit(length);
-              if (!((mutable_bitField0_ & 0x00000040) == 0x00000040) && input.getBytesUntilLimit() > 0) {
+              if (!((mutable_bitField0_ & 0x00000020) == 0x00000020) && input.getBytesUntilLimit() > 0) {
                 nestedClassName_ = new java.util.ArrayList<java.lang.Integer>();
-                mutable_bitField0_ |= 0x00000040;
+                mutable_bitField0_ |= 0x00000020;
               }
               while (input.getBytesUntilLimit() > 0) {
                 nestedClassName_.add(input.readInt32());
@@ -9584,17 +9553,17 @@ public final class DebugProtoBuf {
               break;
             }
             case 90: {
-              if (!((mutable_bitField0_ & 0x00000080) == 0x00000080)) {
+              if (!((mutable_bitField0_ & 0x00000040) == 0x00000040)) {
                 member_ = new java.util.ArrayList<org.jetbrains.kotlin.serialization.DebugProtoBuf.Callable>();
-                mutable_bitField0_ |= 0x00000080;
+                mutable_bitField0_ |= 0x00000040;
               }
               member_.add(input.readMessage(org.jetbrains.kotlin.serialization.DebugProtoBuf.Callable.PARSER, extensionRegistry));
               break;
             }
             case 96: {
-              if (!((mutable_bitField0_ & 0x00000100) == 0x00000100)) {
+              if (!((mutable_bitField0_ & 0x00000080) == 0x00000080)) {
                 enumEntry_ = new java.util.ArrayList<java.lang.Integer>();
-                mutable_bitField0_ |= 0x00000100;
+                mutable_bitField0_ |= 0x00000080;
               }
               enumEntry_.add(input.readInt32());
               break;
@@ -9602,9 +9571,9 @@ public final class DebugProtoBuf {
             case 98: {
               int length = input.readRawVarint32();
               int limit = input.pushLimit(length);
-              if (!((mutable_bitField0_ & 0x00000100) == 0x00000100) && input.getBytesUntilLimit() > 0) {
+              if (!((mutable_bitField0_ & 0x00000080) == 0x00000080) && input.getBytesUntilLimit() > 0) {
                 enumEntry_ = new java.util.ArrayList<java.lang.Integer>();
-                mutable_bitField0_ |= 0x00000100;
+                mutable_bitField0_ |= 0x00000080;
               }
               while (input.getBytesUntilLimit() > 0) {
                 enumEntry_.add(input.readInt32());
@@ -9614,7 +9583,7 @@ public final class DebugProtoBuf {
             }
             case 106: {
               org.jetbrains.kotlin.serialization.DebugProtoBuf.Class.PrimaryConstructor.Builder subBuilder = null;
-              if (((bitField0_ & 0x00000010) == 0x00000010)) {
+              if (((bitField0_ & 0x00000008) == 0x00000008)) {
                 subBuilder = primaryConstructor_.toBuilder();
               }
               primaryConstructor_ = input.readMessage(org.jetbrains.kotlin.serialization.DebugProtoBuf.Class.PrimaryConstructor.PARSER, extensionRegistry);
@@ -9622,7 +9591,7 @@ public final class DebugProtoBuf {
                 subBuilder.mergeFrom(primaryConstructor_);
                 primaryConstructor_ = subBuilder.buildPartial();
               }
-              bitField0_ |= 0x00000010;
+              bitField0_ |= 0x00000008;
               break;
             }
           }
@@ -9633,19 +9602,19 @@ public final class DebugProtoBuf {
         throw new com.google.protobuf.InvalidProtocolBufferException(
             e.getMessage()).setUnfinishedMessage(this);
       } finally {
-        if (((mutable_bitField0_ & 0x00000010) == 0x00000010)) {
+        if (((mutable_bitField0_ & 0x00000008) == 0x00000008)) {
           typeParameter_ = java.util.Collections.unmodifiableList(typeParameter_);
         }
-        if (((mutable_bitField0_ & 0x00000020) == 0x00000020)) {
+        if (((mutable_bitField0_ & 0x00000010) == 0x00000010)) {
           supertype_ = java.util.Collections.unmodifiableList(supertype_);
         }
-        if (((mutable_bitField0_ & 0x00000040) == 0x00000040)) {
+        if (((mutable_bitField0_ & 0x00000020) == 0x00000020)) {
           nestedClassName_ = java.util.Collections.unmodifiableList(nestedClassName_);
         }
-        if (((mutable_bitField0_ & 0x00000080) == 0x00000080)) {
+        if (((mutable_bitField0_ & 0x00000040) == 0x00000040)) {
           member_ = java.util.Collections.unmodifiableList(member_);
         }
-        if (((mutable_bitField0_ & 0x00000100) == 0x00000100)) {
+        if (((mutable_bitField0_ & 0x00000080) == 0x00000080)) {
           enumEntry_ = java.util.Collections.unmodifiableList(enumEntry_);
         }
         this.unknownFields = unknownFields.build();
@@ -10443,61 +10412,6 @@ public final class DebugProtoBuf {
       return flags_;
     }
 
-    // optional string extra_visibility = 2;
-    public static final int EXTRA_VISIBILITY_FIELD_NUMBER = 2;
-    private java.lang.Object extraVisibility_;
-    /**
-     * <code>optional string extra_visibility = 2;</code>
-     *
-     * <pre>
-     * for things like java-specific visibilities
-     * </pre>
-     */
-    public boolean hasExtraVisibility() {
-      return ((bitField0_ & 0x00000002) == 0x00000002);
-    }
-    /**
-     * <code>optional string extra_visibility = 2;</code>
-     *
-     * <pre>
-     * for things like java-specific visibilities
-     * </pre>
-     */
-    public java.lang.String getExtraVisibility() {
-      java.lang.Object ref = extraVisibility_;
-      if (ref instanceof java.lang.String) {
-        return (java.lang.String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        if (bs.isValidUtf8()) {
-          extraVisibility_ = s;
-        }
-        return s;
-      }
-    }
-    /**
-     * <code>optional string extra_visibility = 2;</code>
-     *
-     * <pre>
-     * for things like java-specific visibilities
-     * </pre>
-     */
-    public com.google.protobuf.ByteString
-        getExtraVisibilityBytes() {
-      java.lang.Object ref = extraVisibility_;
-      if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        extraVisibility_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-
     // required int32 fq_name = 3;
     public static final int FQ_NAME_FIELD_NUMBER = 3;
     private int fqName_;
@@ -10505,7 +10419,7 @@ public final class DebugProtoBuf {
      * <code>required int32 fq_name = 3;</code>
      */
     public boolean hasFqName() {
-      return ((bitField0_ & 0x00000004) == 0x00000004);
+      return ((bitField0_ & 0x00000002) == 0x00000002);
     }
     /**
      * <code>required int32 fq_name = 3;</code>
@@ -10525,7 +10439,7 @@ public final class DebugProtoBuf {
      * </pre>
      */
     public boolean hasClassObjectName() {
-      return ((bitField0_ & 0x00000008) == 0x00000008);
+      return ((bitField0_ & 0x00000004) == 0x00000004);
     }
     /**
      * <code>optional int32 class_object_name = 4;</code>
@@ -10718,7 +10632,7 @@ public final class DebugProtoBuf {
      * </pre>
      */
     public boolean hasPrimaryConstructor() {
-      return ((bitField0_ & 0x00000010) == 0x00000010);
+      return ((bitField0_ & 0x00000008) == 0x00000008);
     }
     /**
      * <code>optional .org.jetbrains.kotlin.serialization.Class.PrimaryConstructor primary_constructor = 13;</code>
@@ -10743,7 +10657,6 @@ public final class DebugProtoBuf {
 
     private void initFields() {
       flags_ = 0;
-      extraVisibility_ = "";
       fqName_ = 0;
       classObjectName_ = 0;
       typeParameter_ = java.util.Collections.emptyList();
@@ -10804,12 +10717,9 @@ public final class DebugProtoBuf {
         output.writeInt32(1, flags_);
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        output.writeBytes(2, getExtraVisibilityBytes());
-      }
-      if (((bitField0_ & 0x00000004) == 0x00000004)) {
         output.writeInt32(3, fqName_);
       }
-      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
         output.writeInt32(4, classObjectName_);
       }
       for (int i = 0; i < typeParameter_.size(); i++) {
@@ -10827,7 +10737,7 @@ public final class DebugProtoBuf {
       for (int i = 0; i < enumEntry_.size(); i++) {
         output.writeInt32(12, enumEntry_.get(i));
       }
-      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+      if (((bitField0_ & 0x00000008) == 0x00000008)) {
         output.writeMessage(13, primaryConstructor_);
       }
       extensionWriter.writeUntil(200, output);
@@ -10846,13 +10756,9 @@ public final class DebugProtoBuf {
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(2, getExtraVisibilityBytes());
-      }
-      if (((bitField0_ & 0x00000004) == 0x00000004)) {
-        size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(3, fqName_);
       }
-      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(4, classObjectName_);
       }
@@ -10886,7 +10792,7 @@ public final class DebugProtoBuf {
         size += dataSize;
         size += 1 * getEnumEntryList().size();
       }
-      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+      if (((bitField0_ & 0x00000008) == 0x00000008)) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(13, primaryConstructor_);
       }
@@ -11013,40 +10919,38 @@ public final class DebugProtoBuf {
         super.clear();
         flags_ = 0;
         bitField0_ = (bitField0_ & ~0x00000001);
-        extraVisibility_ = "";
-        bitField0_ = (bitField0_ & ~0x00000002);
         fqName_ = 0;
-        bitField0_ = (bitField0_ & ~0x00000004);
+        bitField0_ = (bitField0_ & ~0x00000002);
         classObjectName_ = 0;
-        bitField0_ = (bitField0_ & ~0x00000008);
+        bitField0_ = (bitField0_ & ~0x00000004);
         if (typeParameterBuilder_ == null) {
           typeParameter_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000010);
+          bitField0_ = (bitField0_ & ~0x00000008);
         } else {
           typeParameterBuilder_.clear();
         }
         if (supertypeBuilder_ == null) {
           supertype_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000020);
+          bitField0_ = (bitField0_ & ~0x00000010);
         } else {
           supertypeBuilder_.clear();
         }
         nestedClassName_ = java.util.Collections.emptyList();
-        bitField0_ = (bitField0_ & ~0x00000040);
+        bitField0_ = (bitField0_ & ~0x00000020);
         if (memberBuilder_ == null) {
           member_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000080);
+          bitField0_ = (bitField0_ & ~0x00000040);
         } else {
           memberBuilder_.clear();
         }
         enumEntry_ = java.util.Collections.emptyList();
-        bitField0_ = (bitField0_ & ~0x00000100);
+        bitField0_ = (bitField0_ & ~0x00000080);
         if (primaryConstructorBuilder_ == null) {
           primaryConstructor_ = org.jetbrains.kotlin.serialization.DebugProtoBuf.Class.PrimaryConstructor.getDefaultInstance();
         } else {
           primaryConstructorBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x00000200);
+        bitField0_ = (bitField0_ & ~0x00000100);
         return this;
       }
 
@@ -11082,54 +10986,50 @@ public final class DebugProtoBuf {
         if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
           to_bitField0_ |= 0x00000002;
         }
-        result.extraVisibility_ = extraVisibility_;
+        result.fqName_ = fqName_;
         if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
           to_bitField0_ |= 0x00000004;
         }
-        result.fqName_ = fqName_;
-        if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
-          to_bitField0_ |= 0x00000008;
-        }
         result.classObjectName_ = classObjectName_;
         if (typeParameterBuilder_ == null) {
-          if (((bitField0_ & 0x00000010) == 0x00000010)) {
+          if (((bitField0_ & 0x00000008) == 0x00000008)) {
             typeParameter_ = java.util.Collections.unmodifiableList(typeParameter_);
-            bitField0_ = (bitField0_ & ~0x00000010);
+            bitField0_ = (bitField0_ & ~0x00000008);
           }
           result.typeParameter_ = typeParameter_;
         } else {
           result.typeParameter_ = typeParameterBuilder_.build();
         }
         if (supertypeBuilder_ == null) {
-          if (((bitField0_ & 0x00000020) == 0x00000020)) {
+          if (((bitField0_ & 0x00000010) == 0x00000010)) {
             supertype_ = java.util.Collections.unmodifiableList(supertype_);
-            bitField0_ = (bitField0_ & ~0x00000020);
+            bitField0_ = (bitField0_ & ~0x00000010);
           }
           result.supertype_ = supertype_;
         } else {
           result.supertype_ = supertypeBuilder_.build();
         }
-        if (((bitField0_ & 0x00000040) == 0x00000040)) {
+        if (((bitField0_ & 0x00000020) == 0x00000020)) {
           nestedClassName_ = java.util.Collections.unmodifiableList(nestedClassName_);
-          bitField0_ = (bitField0_ & ~0x00000040);
+          bitField0_ = (bitField0_ & ~0x00000020);
         }
         result.nestedClassName_ = nestedClassName_;
         if (memberBuilder_ == null) {
-          if (((bitField0_ & 0x00000080) == 0x00000080)) {
+          if (((bitField0_ & 0x00000040) == 0x00000040)) {
             member_ = java.util.Collections.unmodifiableList(member_);
-            bitField0_ = (bitField0_ & ~0x00000080);
+            bitField0_ = (bitField0_ & ~0x00000040);
           }
           result.member_ = member_;
         } else {
           result.member_ = memberBuilder_.build();
         }
-        if (((bitField0_ & 0x00000100) == 0x00000100)) {
+        if (((bitField0_ & 0x00000080) == 0x00000080)) {
           enumEntry_ = java.util.Collections.unmodifiableList(enumEntry_);
-          bitField0_ = (bitField0_ & ~0x00000100);
+          bitField0_ = (bitField0_ & ~0x00000080);
         }
         result.enumEntry_ = enumEntry_;
-        if (((from_bitField0_ & 0x00000200) == 0x00000200)) {
-          to_bitField0_ |= 0x00000010;
+        if (((from_bitField0_ & 0x00000100) == 0x00000100)) {
+          to_bitField0_ |= 0x00000008;
         }
         if (primaryConstructorBuilder_ == null) {
           result.primaryConstructor_ = primaryConstructor_;
@@ -11155,11 +11055,6 @@ public final class DebugProtoBuf {
         if (other.hasFlags()) {
           setFlags(other.getFlags());
         }
-        if (other.hasExtraVisibility()) {
-          bitField0_ |= 0x00000002;
-          extraVisibility_ = other.extraVisibility_;
-          onChanged();
-        }
         if (other.hasFqName()) {
           setFqName(other.getFqName());
         }
@@ -11170,7 +11065,7 @@ public final class DebugProtoBuf {
           if (!other.typeParameter_.isEmpty()) {
             if (typeParameter_.isEmpty()) {
               typeParameter_ = other.typeParameter_;
-              bitField0_ = (bitField0_ & ~0x00000010);
+              bitField0_ = (bitField0_ & ~0x00000008);
             } else {
               ensureTypeParameterIsMutable();
               typeParameter_.addAll(other.typeParameter_);
@@ -11183,7 +11078,7 @@ public final class DebugProtoBuf {
               typeParameterBuilder_.dispose();
               typeParameterBuilder_ = null;
               typeParameter_ = other.typeParameter_;
-              bitField0_ = (bitField0_ & ~0x00000010);
+              bitField0_ = (bitField0_ & ~0x00000008);
               typeParameterBuilder_ = 
                 com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
                    getTypeParameterFieldBuilder() : null;
@@ -11196,7 +11091,7 @@ public final class DebugProtoBuf {
           if (!other.supertype_.isEmpty()) {
             if (supertype_.isEmpty()) {
               supertype_ = other.supertype_;
-              bitField0_ = (bitField0_ & ~0x00000020);
+              bitField0_ = (bitField0_ & ~0x00000010);
             } else {
               ensureSupertypeIsMutable();
               supertype_.addAll(other.supertype_);
@@ -11209,7 +11104,7 @@ public final class DebugProtoBuf {
               supertypeBuilder_.dispose();
               supertypeBuilder_ = null;
               supertype_ = other.supertype_;
-              bitField0_ = (bitField0_ & ~0x00000020);
+              bitField0_ = (bitField0_ & ~0x00000010);
               supertypeBuilder_ = 
                 com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
                    getSupertypeFieldBuilder() : null;
@@ -11221,7 +11116,7 @@ public final class DebugProtoBuf {
         if (!other.nestedClassName_.isEmpty()) {
           if (nestedClassName_.isEmpty()) {
             nestedClassName_ = other.nestedClassName_;
-            bitField0_ = (bitField0_ & ~0x00000040);
+            bitField0_ = (bitField0_ & ~0x00000020);
           } else {
             ensureNestedClassNameIsMutable();
             nestedClassName_.addAll(other.nestedClassName_);
@@ -11232,7 +11127,7 @@ public final class DebugProtoBuf {
           if (!other.member_.isEmpty()) {
             if (member_.isEmpty()) {
               member_ = other.member_;
-              bitField0_ = (bitField0_ & ~0x00000080);
+              bitField0_ = (bitField0_ & ~0x00000040);
             } else {
               ensureMemberIsMutable();
               member_.addAll(other.member_);
@@ -11245,7 +11140,7 @@ public final class DebugProtoBuf {
               memberBuilder_.dispose();
               memberBuilder_ = null;
               member_ = other.member_;
-              bitField0_ = (bitField0_ & ~0x00000080);
+              bitField0_ = (bitField0_ & ~0x00000040);
               memberBuilder_ = 
                 com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
                    getMemberFieldBuilder() : null;
@@ -11257,7 +11152,7 @@ public final class DebugProtoBuf {
         if (!other.enumEntry_.isEmpty()) {
           if (enumEntry_.isEmpty()) {
             enumEntry_ = other.enumEntry_;
-            bitField0_ = (bitField0_ & ~0x00000100);
+            bitField0_ = (bitField0_ & ~0x00000080);
           } else {
             ensureEnumEntryIsMutable();
             enumEntry_.addAll(other.enumEntry_);
@@ -11396,111 +11291,13 @@ public final class DebugProtoBuf {
         return this;
       }
 
-      // optional string extra_visibility = 2;
-      private java.lang.Object extraVisibility_ = "";
-      /**
-       * <code>optional string extra_visibility = 2;</code>
-       *
-       * <pre>
-       * for things like java-specific visibilities
-       * </pre>
-       */
-      public boolean hasExtraVisibility() {
-        return ((bitField0_ & 0x00000002) == 0x00000002);
-      }
-      /**
-       * <code>optional string extra_visibility = 2;</code>
-       *
-       * <pre>
-       * for things like java-specific visibilities
-       * </pre>
-       */
-      public java.lang.String getExtraVisibility() {
-        java.lang.Object ref = extraVisibility_;
-        if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          extraVisibility_ = s;
-          return s;
-        } else {
-          return (java.lang.String) ref;
-        }
-      }
-      /**
-       * <code>optional string extra_visibility = 2;</code>
-       *
-       * <pre>
-       * for things like java-specific visibilities
-       * </pre>
-       */
-      public com.google.protobuf.ByteString
-          getExtraVisibilityBytes() {
-        java.lang.Object ref = extraVisibility_;
-        if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          extraVisibility_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-      /**
-       * <code>optional string extra_visibility = 2;</code>
-       *
-       * <pre>
-       * for things like java-specific visibilities
-       * </pre>
-       */
-      public Builder setExtraVisibility(
-          java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000002;
-        extraVisibility_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional string extra_visibility = 2;</code>
-       *
-       * <pre>
-       * for things like java-specific visibilities
-       * </pre>
-       */
-      public Builder clearExtraVisibility() {
-        bitField0_ = (bitField0_ & ~0x00000002);
-        extraVisibility_ = getDefaultInstance().getExtraVisibility();
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional string extra_visibility = 2;</code>
-       *
-       * <pre>
-       * for things like java-specific visibilities
-       * </pre>
-       */
-      public Builder setExtraVisibilityBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000002;
-        extraVisibility_ = value;
-        onChanged();
-        return this;
-      }
-
       // required int32 fq_name = 3;
       private int fqName_ ;
       /**
        * <code>required int32 fq_name = 3;</code>
        */
       public boolean hasFqName() {
-        return ((bitField0_ & 0x00000004) == 0x00000004);
+        return ((bitField0_ & 0x00000002) == 0x00000002);
       }
       /**
        * <code>required int32 fq_name = 3;</code>
@@ -11512,7 +11309,7 @@ public final class DebugProtoBuf {
        * <code>required int32 fq_name = 3;</code>
        */
       public Builder setFqName(int value) {
-        bitField0_ |= 0x00000004;
+        bitField0_ |= 0x00000002;
         fqName_ = value;
         onChanged();
         return this;
@@ -11521,7 +11318,7 @@ public final class DebugProtoBuf {
        * <code>required int32 fq_name = 3;</code>
        */
       public Builder clearFqName() {
-        bitField0_ = (bitField0_ & ~0x00000004);
+        bitField0_ = (bitField0_ & ~0x00000002);
         fqName_ = 0;
         onChanged();
         return this;
@@ -11537,7 +11334,7 @@ public final class DebugProtoBuf {
        * </pre>
        */
       public boolean hasClassObjectName() {
-        return ((bitField0_ & 0x00000008) == 0x00000008);
+        return ((bitField0_ & 0x00000004) == 0x00000004);
       }
       /**
        * <code>optional int32 class_object_name = 4;</code>
@@ -11557,7 +11354,7 @@ public final class DebugProtoBuf {
        * </pre>
        */
       public Builder setClassObjectName(int value) {
-        bitField0_ |= 0x00000008;
+        bitField0_ |= 0x00000004;
         classObjectName_ = value;
         onChanged();
         return this;
@@ -11570,7 +11367,7 @@ public final class DebugProtoBuf {
        * </pre>
        */
       public Builder clearClassObjectName() {
-        bitField0_ = (bitField0_ & ~0x00000008);
+        bitField0_ = (bitField0_ & ~0x00000004);
         classObjectName_ = 0;
         onChanged();
         return this;
@@ -11580,9 +11377,9 @@ public final class DebugProtoBuf {
       private java.util.List<org.jetbrains.kotlin.serialization.DebugProtoBuf.TypeParameter> typeParameter_ =
         java.util.Collections.emptyList();
       private void ensureTypeParameterIsMutable() {
-        if (!((bitField0_ & 0x00000010) == 0x00000010)) {
+        if (!((bitField0_ & 0x00000008) == 0x00000008)) {
           typeParameter_ = new java.util.ArrayList<org.jetbrains.kotlin.serialization.DebugProtoBuf.TypeParameter>(typeParameter_);
-          bitField0_ |= 0x00000010;
+          bitField0_ |= 0x00000008;
          }
       }
 
@@ -11731,7 +11528,7 @@ public final class DebugProtoBuf {
       public Builder clearTypeParameter() {
         if (typeParameterBuilder_ == null) {
           typeParameter_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000010);
+          bitField0_ = (bitField0_ & ~0x00000008);
           onChanged();
         } else {
           typeParameterBuilder_.clear();
@@ -11808,7 +11605,7 @@ public final class DebugProtoBuf {
           typeParameterBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
               org.jetbrains.kotlin.serialization.DebugProtoBuf.TypeParameter, org.jetbrains.kotlin.serialization.DebugProtoBuf.TypeParameter.Builder, org.jetbrains.kotlin.serialization.DebugProtoBuf.TypeParameterOrBuilder>(
                   typeParameter_,
-                  ((bitField0_ & 0x00000010) == 0x00000010),
+                  ((bitField0_ & 0x00000008) == 0x00000008),
                   getParentForChildren(),
                   isClean());
           typeParameter_ = null;
@@ -11820,9 +11617,9 @@ public final class DebugProtoBuf {
       private java.util.List<org.jetbrains.kotlin.serialization.DebugProtoBuf.Type> supertype_ =
         java.util.Collections.emptyList();
       private void ensureSupertypeIsMutable() {
-        if (!((bitField0_ & 0x00000020) == 0x00000020)) {
+        if (!((bitField0_ & 0x00000010) == 0x00000010)) {
           supertype_ = new java.util.ArrayList<org.jetbrains.kotlin.serialization.DebugProtoBuf.Type>(supertype_);
-          bitField0_ |= 0x00000020;
+          bitField0_ |= 0x00000010;
          }
       }
 
@@ -11971,7 +11768,7 @@ public final class DebugProtoBuf {
       public Builder clearSupertype() {
         if (supertypeBuilder_ == null) {
           supertype_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000020);
+          bitField0_ = (bitField0_ & ~0x00000010);
           onChanged();
         } else {
           supertypeBuilder_.clear();
@@ -12048,7 +11845,7 @@ public final class DebugProtoBuf {
           supertypeBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
               org.jetbrains.kotlin.serialization.DebugProtoBuf.Type, org.jetbrains.kotlin.serialization.DebugProtoBuf.Type.Builder, org.jetbrains.kotlin.serialization.DebugProtoBuf.TypeOrBuilder>(
                   supertype_,
-                  ((bitField0_ & 0x00000020) == 0x00000020),
+                  ((bitField0_ & 0x00000010) == 0x00000010),
                   getParentForChildren(),
                   isClean());
           supertype_ = null;
@@ -12059,9 +11856,9 @@ public final class DebugProtoBuf {
       // repeated int32 nested_class_name = 7;
       private java.util.List<java.lang.Integer> nestedClassName_ = java.util.Collections.emptyList();
       private void ensureNestedClassNameIsMutable() {
-        if (!((bitField0_ & 0x00000040) == 0x00000040)) {
+        if (!((bitField0_ & 0x00000020) == 0x00000020)) {
           nestedClassName_ = new java.util.ArrayList<java.lang.Integer>(nestedClassName_);
-          bitField0_ |= 0x00000040;
+          bitField0_ |= 0x00000020;
          }
       }
       /**
@@ -12152,7 +11949,7 @@ public final class DebugProtoBuf {
        */
       public Builder clearNestedClassName() {
         nestedClassName_ = java.util.Collections.emptyList();
-        bitField0_ = (bitField0_ & ~0x00000040);
+        bitField0_ = (bitField0_ & ~0x00000020);
         onChanged();
         return this;
       }
@@ -12161,9 +11958,9 @@ public final class DebugProtoBuf {
       private java.util.List<org.jetbrains.kotlin.serialization.DebugProtoBuf.Callable> member_ =
         java.util.Collections.emptyList();
       private void ensureMemberIsMutable() {
-        if (!((bitField0_ & 0x00000080) == 0x00000080)) {
+        if (!((bitField0_ & 0x00000040) == 0x00000040)) {
           member_ = new java.util.ArrayList<org.jetbrains.kotlin.serialization.DebugProtoBuf.Callable>(member_);
-          bitField0_ |= 0x00000080;
+          bitField0_ |= 0x00000040;
          }
       }
 
@@ -12312,7 +12109,7 @@ public final class DebugProtoBuf {
       public Builder clearMember() {
         if (memberBuilder_ == null) {
           member_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000080);
+          bitField0_ = (bitField0_ & ~0x00000040);
           onChanged();
         } else {
           memberBuilder_.clear();
@@ -12389,7 +12186,7 @@ public final class DebugProtoBuf {
           memberBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
               org.jetbrains.kotlin.serialization.DebugProtoBuf.Callable, org.jetbrains.kotlin.serialization.DebugProtoBuf.Callable.Builder, org.jetbrains.kotlin.serialization.DebugProtoBuf.CallableOrBuilder>(
                   member_,
-                  ((bitField0_ & 0x00000080) == 0x00000080),
+                  ((bitField0_ & 0x00000040) == 0x00000040),
                   getParentForChildren(),
                   isClean());
           member_ = null;
@@ -12400,9 +12197,9 @@ public final class DebugProtoBuf {
       // repeated int32 enum_entry = 12;
       private java.util.List<java.lang.Integer> enumEntry_ = java.util.Collections.emptyList();
       private void ensureEnumEntryIsMutable() {
-        if (!((bitField0_ & 0x00000100) == 0x00000100)) {
+        if (!((bitField0_ & 0x00000080) == 0x00000080)) {
           enumEntry_ = new java.util.ArrayList<java.lang.Integer>(enumEntry_);
-          bitField0_ |= 0x00000100;
+          bitField0_ |= 0x00000080;
          }
       }
       /**
@@ -12458,7 +12255,7 @@ public final class DebugProtoBuf {
        */
       public Builder clearEnumEntry() {
         enumEntry_ = java.util.Collections.emptyList();
-        bitField0_ = (bitField0_ & ~0x00000100);
+        bitField0_ = (bitField0_ & ~0x00000080);
         onChanged();
         return this;
       }
@@ -12475,7 +12272,7 @@ public final class DebugProtoBuf {
        * </pre>
        */
       public boolean hasPrimaryConstructor() {
-        return ((bitField0_ & 0x00000200) == 0x00000200);
+        return ((bitField0_ & 0x00000100) == 0x00000100);
       }
       /**
        * <code>optional .org.jetbrains.kotlin.serialization.Class.PrimaryConstructor primary_constructor = 13;</code>
@@ -12508,7 +12305,7 @@ public final class DebugProtoBuf {
         } else {
           primaryConstructorBuilder_.setMessage(value);
         }
-        bitField0_ |= 0x00000200;
+        bitField0_ |= 0x00000100;
         return this;
       }
       /**
@@ -12526,7 +12323,7 @@ public final class DebugProtoBuf {
         } else {
           primaryConstructorBuilder_.setMessage(builderForValue.build());
         }
-        bitField0_ |= 0x00000200;
+        bitField0_ |= 0x00000100;
         return this;
       }
       /**
@@ -12538,7 +12335,7 @@ public final class DebugProtoBuf {
        */
       public Builder mergePrimaryConstructor(org.jetbrains.kotlin.serialization.DebugProtoBuf.Class.PrimaryConstructor value) {
         if (primaryConstructorBuilder_ == null) {
-          if (((bitField0_ & 0x00000200) == 0x00000200) &&
+          if (((bitField0_ & 0x00000100) == 0x00000100) &&
               primaryConstructor_ != org.jetbrains.kotlin.serialization.DebugProtoBuf.Class.PrimaryConstructor.getDefaultInstance()) {
             primaryConstructor_ =
               org.jetbrains.kotlin.serialization.DebugProtoBuf.Class.PrimaryConstructor.newBuilder(primaryConstructor_).mergeFrom(value).buildPartial();
@@ -12549,7 +12346,7 @@ public final class DebugProtoBuf {
         } else {
           primaryConstructorBuilder_.mergeFrom(value);
         }
-        bitField0_ |= 0x00000200;
+        bitField0_ |= 0x00000100;
         return this;
       }
       /**
@@ -12566,7 +12363,7 @@ public final class DebugProtoBuf {
         } else {
           primaryConstructorBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x00000200);
+        bitField0_ = (bitField0_ & ~0x00000100);
         return this;
       }
       /**
@@ -12577,7 +12374,7 @@ public final class DebugProtoBuf {
        * </pre>
        */
       public org.jetbrains.kotlin.serialization.DebugProtoBuf.Class.PrimaryConstructor.Builder getPrimaryConstructorBuilder() {
-        bitField0_ |= 0x00000200;
+        bitField0_ |= 0x00000100;
         onChanged();
         return getPrimaryConstructorFieldBuilder().getBuilder();
       }
@@ -13366,33 +13163,6 @@ public final class DebugProtoBuf {
      */
     int getFlags();
 
-    // optional string extra_visibility = 2;
-    /**
-     * <code>optional string extra_visibility = 2;</code>
-     *
-     * <pre>
-     * for things like java-specific visibilities
-     * </pre>
-     */
-    boolean hasExtraVisibility();
-    /**
-     * <code>optional string extra_visibility = 2;</code>
-     *
-     * <pre>
-     * for things like java-specific visibilities
-     * </pre>
-     */
-    java.lang.String getExtraVisibility();
-    /**
-     * <code>optional string extra_visibility = 2;</code>
-     *
-     * <pre>
-     * for things like java-specific visibilities
-     * </pre>
-     */
-    com.google.protobuf.ByteString
-        getExtraVisibilityBytes();
-
     // optional int32 getter_flags = 9;
     /**
      * <code>optional int32 getter_flags = 9;</code>
@@ -13601,22 +13371,17 @@ public final class DebugProtoBuf {
               flags_ = input.readInt32();
               break;
             }
-            case 18: {
-              bitField0_ |= 0x00000002;
-              extraVisibility_ = input.readBytes();
-              break;
-            }
             case 34: {
-              if (!((mutable_bitField0_ & 0x00000010) == 0x00000010)) {
+              if (!((mutable_bitField0_ & 0x00000008) == 0x00000008)) {
                 typeParameter_ = new java.util.ArrayList<org.jetbrains.kotlin.serialization.DebugProtoBuf.TypeParameter>();
-                mutable_bitField0_ |= 0x00000010;
+                mutable_bitField0_ |= 0x00000008;
               }
               typeParameter_.add(input.readMessage(org.jetbrains.kotlin.serialization.DebugProtoBuf.TypeParameter.PARSER, extensionRegistry));
               break;
             }
             case 42: {
               org.jetbrains.kotlin.serialization.DebugProtoBuf.Type.Builder subBuilder = null;
-              if (((bitField0_ & 0x00000010) == 0x00000010)) {
+              if (((bitField0_ & 0x00000008) == 0x00000008)) {
                 subBuilder = receiverType_.toBuilder();
               }
               receiverType_ = input.readMessage(org.jetbrains.kotlin.serialization.DebugProtoBuf.Type.PARSER, extensionRegistry);
@@ -13624,25 +13389,25 @@ public final class DebugProtoBuf {
                 subBuilder.mergeFrom(receiverType_);
                 receiverType_ = subBuilder.buildPartial();
               }
-              bitField0_ |= 0x00000010;
+              bitField0_ |= 0x00000008;
               break;
             }
             case 48: {
-              bitField0_ |= 0x00000020;
+              bitField0_ |= 0x00000010;
               name_ = input.readInt32();
               break;
             }
             case 58: {
-              if (!((mutable_bitField0_ & 0x00000080) == 0x00000080)) {
+              if (!((mutable_bitField0_ & 0x00000040) == 0x00000040)) {
                 valueParameter_ = new java.util.ArrayList<org.jetbrains.kotlin.serialization.DebugProtoBuf.Callable.ValueParameter>();
-                mutable_bitField0_ |= 0x00000080;
+                mutable_bitField0_ |= 0x00000040;
               }
               valueParameter_.add(input.readMessage(org.jetbrains.kotlin.serialization.DebugProtoBuf.Callable.ValueParameter.PARSER, extensionRegistry));
               break;
             }
             case 66: {
               org.jetbrains.kotlin.serialization.DebugProtoBuf.Type.Builder subBuilder = null;
-              if (((bitField0_ & 0x00000040) == 0x00000040)) {
+              if (((bitField0_ & 0x00000020) == 0x00000020)) {
                 subBuilder = returnType_.toBuilder();
               }
               returnType_ = input.readMessage(org.jetbrains.kotlin.serialization.DebugProtoBuf.Type.PARSER, extensionRegistry);
@@ -13650,16 +13415,16 @@ public final class DebugProtoBuf {
                 subBuilder.mergeFrom(returnType_);
                 returnType_ = subBuilder.buildPartial();
               }
-              bitField0_ |= 0x00000040;
+              bitField0_ |= 0x00000020;
               break;
             }
             case 72: {
-              bitField0_ |= 0x00000004;
+              bitField0_ |= 0x00000002;
               getterFlags_ = input.readInt32();
               break;
             }
             case 80: {
-              bitField0_ |= 0x00000008;
+              bitField0_ |= 0x00000004;
               setterFlags_ = input.readInt32();
               break;
             }
@@ -13671,10 +13436,10 @@ public final class DebugProtoBuf {
         throw new com.google.protobuf.InvalidProtocolBufferException(
             e.getMessage()).setUnfinishedMessage(this);
       } finally {
-        if (((mutable_bitField0_ & 0x00000010) == 0x00000010)) {
+        if (((mutable_bitField0_ & 0x00000008) == 0x00000008)) {
           typeParameter_ = java.util.Collections.unmodifiableList(typeParameter_);
         }
-        if (((mutable_bitField0_ & 0x00000080) == 0x00000080)) {
+        if (((mutable_bitField0_ & 0x00000040) == 0x00000040)) {
           valueParameter_ = java.util.Collections.unmodifiableList(valueParameter_);
         }
         this.unknownFields = unknownFields.build();
@@ -14957,61 +14722,6 @@ public final class DebugProtoBuf {
       return flags_;
     }
 
-    // optional string extra_visibility = 2;
-    public static final int EXTRA_VISIBILITY_FIELD_NUMBER = 2;
-    private java.lang.Object extraVisibility_;
-    /**
-     * <code>optional string extra_visibility = 2;</code>
-     *
-     * <pre>
-     * for things like java-specific visibilities
-     * </pre>
-     */
-    public boolean hasExtraVisibility() {
-      return ((bitField0_ & 0x00000002) == 0x00000002);
-    }
-    /**
-     * <code>optional string extra_visibility = 2;</code>
-     *
-     * <pre>
-     * for things like java-specific visibilities
-     * </pre>
-     */
-    public java.lang.String getExtraVisibility() {
-      java.lang.Object ref = extraVisibility_;
-      if (ref instanceof java.lang.String) {
-        return (java.lang.String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        if (bs.isValidUtf8()) {
-          extraVisibility_ = s;
-        }
-        return s;
-      }
-    }
-    /**
-     * <code>optional string extra_visibility = 2;</code>
-     *
-     * <pre>
-     * for things like java-specific visibilities
-     * </pre>
-     */
-    public com.google.protobuf.ByteString
-        getExtraVisibilityBytes() {
-      java.lang.Object ref = extraVisibility_;
-      if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        extraVisibility_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-
     // optional int32 getter_flags = 9;
     public static final int GETTER_FLAGS_FIELD_NUMBER = 9;
     private int getterFlags_;
@@ -15027,7 +14737,7 @@ public final class DebugProtoBuf {
      * </pre>
      */
     public boolean hasGetterFlags() {
-      return ((bitField0_ & 0x00000004) == 0x00000004);
+      return ((bitField0_ & 0x00000002) == 0x00000002);
     }
     /**
      * <code>optional int32 getter_flags = 9;</code>
@@ -15051,7 +14761,7 @@ public final class DebugProtoBuf {
      * <code>optional int32 setter_flags = 10;</code>
      */
     public boolean hasSetterFlags() {
-      return ((bitField0_ & 0x00000008) == 0x00000008);
+      return ((bitField0_ & 0x00000004) == 0x00000004);
     }
     /**
      * <code>optional int32 setter_flags = 10;</code>
@@ -15103,7 +14813,7 @@ public final class DebugProtoBuf {
      * <code>optional .org.jetbrains.kotlin.serialization.Type receiver_type = 5;</code>
      */
     public boolean hasReceiverType() {
-      return ((bitField0_ & 0x00000010) == 0x00000010);
+      return ((bitField0_ & 0x00000008) == 0x00000008);
     }
     /**
      * <code>optional .org.jetbrains.kotlin.serialization.Type receiver_type = 5;</code>
@@ -15129,7 +14839,7 @@ public final class DebugProtoBuf {
      * </pre>
      */
     public boolean hasName() {
-      return ((bitField0_ & 0x00000020) == 0x00000020);
+      return ((bitField0_ & 0x00000010) == 0x00000010);
     }
     /**
      * <code>required int32 name = 6;</code>
@@ -15205,7 +14915,7 @@ public final class DebugProtoBuf {
      * <code>required .org.jetbrains.kotlin.serialization.Type return_type = 8;</code>
      */
     public boolean hasReturnType() {
-      return ((bitField0_ & 0x00000040) == 0x00000040);
+      return ((bitField0_ & 0x00000020) == 0x00000020);
     }
     /**
      * <code>required .org.jetbrains.kotlin.serialization.Type return_type = 8;</code>
@@ -15222,7 +14932,6 @@ public final class DebugProtoBuf {
 
     private void initFields() {
       flags_ = 0;
-      extraVisibility_ = "";
       getterFlags_ = 0;
       setterFlags_ = 0;
       typeParameter_ = java.util.Collections.emptyList();
@@ -15283,28 +14992,25 @@ public final class DebugProtoBuf {
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         output.writeInt32(1, flags_);
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        output.writeBytes(2, getExtraVisibilityBytes());
-      }
       for (int i = 0; i < typeParameter_.size(); i++) {
         output.writeMessage(4, typeParameter_.get(i));
       }
-      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+      if (((bitField0_ & 0x00000008) == 0x00000008)) {
         output.writeMessage(5, receiverType_);
       }
-      if (((bitField0_ & 0x00000020) == 0x00000020)) {
+      if (((bitField0_ & 0x00000010) == 0x00000010)) {
         output.writeInt32(6, name_);
       }
       for (int i = 0; i < valueParameter_.size(); i++) {
         output.writeMessage(7, valueParameter_.get(i));
       }
-      if (((bitField0_ & 0x00000040) == 0x00000040)) {
+      if (((bitField0_ & 0x00000020) == 0x00000020)) {
         output.writeMessage(8, returnType_);
       }
-      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
         output.writeInt32(9, getterFlags_);
       }
-      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
         output.writeInt32(10, setterFlags_);
       }
       extensionWriter.writeUntil(200, output);
@@ -15321,19 +15027,15 @@ public final class DebugProtoBuf {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(1, flags_);
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(2, getExtraVisibilityBytes());
-      }
       for (int i = 0; i < typeParameter_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(4, typeParameter_.get(i));
       }
-      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+      if (((bitField0_ & 0x00000008) == 0x00000008)) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(5, receiverType_);
       }
-      if (((bitField0_ & 0x00000020) == 0x00000020)) {
+      if (((bitField0_ & 0x00000010) == 0x00000010)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(6, name_);
       }
@@ -15341,15 +15043,15 @@ public final class DebugProtoBuf {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(7, valueParameter_.get(i));
       }
-      if (((bitField0_ & 0x00000040) == 0x00000040)) {
+      if (((bitField0_ & 0x00000020) == 0x00000020)) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(8, returnType_);
       }
-      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(9, getterFlags_);
       }
-      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(10, setterFlags_);
       }
@@ -15476,15 +15178,13 @@ public final class DebugProtoBuf {
         super.clear();
         flags_ = 0;
         bitField0_ = (bitField0_ & ~0x00000001);
-        extraVisibility_ = "";
-        bitField0_ = (bitField0_ & ~0x00000002);
         getterFlags_ = 0;
-        bitField0_ = (bitField0_ & ~0x00000004);
+        bitField0_ = (bitField0_ & ~0x00000002);
         setterFlags_ = 0;
-        bitField0_ = (bitField0_ & ~0x00000008);
+        bitField0_ = (bitField0_ & ~0x00000004);
         if (typeParameterBuilder_ == null) {
           typeParameter_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000010);
+          bitField0_ = (bitField0_ & ~0x00000008);
         } else {
           typeParameterBuilder_.clear();
         }
@@ -15493,12 +15193,12 @@ public final class DebugProtoBuf {
         } else {
           receiverTypeBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x00000020);
+        bitField0_ = (bitField0_ & ~0x00000010);
         name_ = 0;
-        bitField0_ = (bitField0_ & ~0x00000040);
+        bitField0_ = (bitField0_ & ~0x00000020);
         if (valueParameterBuilder_ == null) {
           valueParameter_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000080);
+          bitField0_ = (bitField0_ & ~0x00000040);
         } else {
           valueParameterBuilder_.clear();
         }
@@ -15507,7 +15207,7 @@ public final class DebugProtoBuf {
         } else {
           returnTypeBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x00000100);
+        bitField0_ = (bitField0_ & ~0x00000080);
         return this;
       }
 
@@ -15543,47 +15243,43 @@ public final class DebugProtoBuf {
         if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
           to_bitField0_ |= 0x00000002;
         }
-        result.extraVisibility_ = extraVisibility_;
+        result.getterFlags_ = getterFlags_;
         if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
           to_bitField0_ |= 0x00000004;
         }
-        result.getterFlags_ = getterFlags_;
-        if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
-          to_bitField0_ |= 0x00000008;
-        }
         result.setterFlags_ = setterFlags_;
         if (typeParameterBuilder_ == null) {
-          if (((bitField0_ & 0x00000010) == 0x00000010)) {
+          if (((bitField0_ & 0x00000008) == 0x00000008)) {
             typeParameter_ = java.util.Collections.unmodifiableList(typeParameter_);
-            bitField0_ = (bitField0_ & ~0x00000010);
+            bitField0_ = (bitField0_ & ~0x00000008);
           }
           result.typeParameter_ = typeParameter_;
         } else {
           result.typeParameter_ = typeParameterBuilder_.build();
         }
-        if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
-          to_bitField0_ |= 0x00000010;
+        if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
+          to_bitField0_ |= 0x00000008;
         }
         if (receiverTypeBuilder_ == null) {
           result.receiverType_ = receiverType_;
         } else {
           result.receiverType_ = receiverTypeBuilder_.build();
         }
-        if (((from_bitField0_ & 0x00000040) == 0x00000040)) {
-          to_bitField0_ |= 0x00000020;
+        if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
+          to_bitField0_ |= 0x00000010;
         }
         result.name_ = name_;
         if (valueParameterBuilder_ == null) {
-          if (((bitField0_ & 0x00000080) == 0x00000080)) {
+          if (((bitField0_ & 0x00000040) == 0x00000040)) {
             valueParameter_ = java.util.Collections.unmodifiableList(valueParameter_);
-            bitField0_ = (bitField0_ & ~0x00000080);
+            bitField0_ = (bitField0_ & ~0x00000040);
           }
           result.valueParameter_ = valueParameter_;
         } else {
           result.valueParameter_ = valueParameterBuilder_.build();
         }
-        if (((from_bitField0_ & 0x00000100) == 0x00000100)) {
-          to_bitField0_ |= 0x00000040;
+        if (((from_bitField0_ & 0x00000080) == 0x00000080)) {
+          to_bitField0_ |= 0x00000020;
         }
         if (returnTypeBuilder_ == null) {
           result.returnType_ = returnType_;
@@ -15609,11 +15305,6 @@ public final class DebugProtoBuf {
         if (other.hasFlags()) {
           setFlags(other.getFlags());
         }
-        if (other.hasExtraVisibility()) {
-          bitField0_ |= 0x00000002;
-          extraVisibility_ = other.extraVisibility_;
-          onChanged();
-        }
         if (other.hasGetterFlags()) {
           setGetterFlags(other.getGetterFlags());
         }
@@ -15624,7 +15315,7 @@ public final class DebugProtoBuf {
           if (!other.typeParameter_.isEmpty()) {
             if (typeParameter_.isEmpty()) {
               typeParameter_ = other.typeParameter_;
-              bitField0_ = (bitField0_ & ~0x00000010);
+              bitField0_ = (bitField0_ & ~0x00000008);
             } else {
               ensureTypeParameterIsMutable();
               typeParameter_.addAll(other.typeParameter_);
@@ -15637,7 +15328,7 @@ public final class DebugProtoBuf {
               typeParameterBuilder_.dispose();
               typeParameterBuilder_ = null;
               typeParameter_ = other.typeParameter_;
-              bitField0_ = (bitField0_ & ~0x00000010);
+              bitField0_ = (bitField0_ & ~0x00000008);
               typeParameterBuilder_ = 
                 com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
                    getTypeParameterFieldBuilder() : null;
@@ -15656,7 +15347,7 @@ public final class DebugProtoBuf {
           if (!other.valueParameter_.isEmpty()) {
             if (valueParameter_.isEmpty()) {
               valueParameter_ = other.valueParameter_;
-              bitField0_ = (bitField0_ & ~0x00000080);
+              bitField0_ = (bitField0_ & ~0x00000040);
             } else {
               ensureValueParameterIsMutable();
               valueParameter_.addAll(other.valueParameter_);
@@ -15669,7 +15360,7 @@ public final class DebugProtoBuf {
               valueParameterBuilder_.dispose();
               valueParameterBuilder_ = null;
               valueParameter_ = other.valueParameter_;
-              bitField0_ = (bitField0_ & ~0x00000080);
+              bitField0_ = (bitField0_ & ~0x00000040);
               valueParameterBuilder_ = 
                 com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
                    getValueParameterFieldBuilder() : null;
@@ -15824,104 +15515,6 @@ public final class DebugProtoBuf {
         return this;
       }
 
-      // optional string extra_visibility = 2;
-      private java.lang.Object extraVisibility_ = "";
-      /**
-       * <code>optional string extra_visibility = 2;</code>
-       *
-       * <pre>
-       * for things like java-specific visibilities
-       * </pre>
-       */
-      public boolean hasExtraVisibility() {
-        return ((bitField0_ & 0x00000002) == 0x00000002);
-      }
-      /**
-       * <code>optional string extra_visibility = 2;</code>
-       *
-       * <pre>
-       * for things like java-specific visibilities
-       * </pre>
-       */
-      public java.lang.String getExtraVisibility() {
-        java.lang.Object ref = extraVisibility_;
-        if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          extraVisibility_ = s;
-          return s;
-        } else {
-          return (java.lang.String) ref;
-        }
-      }
-      /**
-       * <code>optional string extra_visibility = 2;</code>
-       *
-       * <pre>
-       * for things like java-specific visibilities
-       * </pre>
-       */
-      public com.google.protobuf.ByteString
-          getExtraVisibilityBytes() {
-        java.lang.Object ref = extraVisibility_;
-        if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          extraVisibility_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-      /**
-       * <code>optional string extra_visibility = 2;</code>
-       *
-       * <pre>
-       * for things like java-specific visibilities
-       * </pre>
-       */
-      public Builder setExtraVisibility(
-          java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000002;
-        extraVisibility_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional string extra_visibility = 2;</code>
-       *
-       * <pre>
-       * for things like java-specific visibilities
-       * </pre>
-       */
-      public Builder clearExtraVisibility() {
-        bitField0_ = (bitField0_ & ~0x00000002);
-        extraVisibility_ = getDefaultInstance().getExtraVisibility();
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional string extra_visibility = 2;</code>
-       *
-       * <pre>
-       * for things like java-specific visibilities
-       * </pre>
-       */
-      public Builder setExtraVisibilityBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000002;
-        extraVisibility_ = value;
-        onChanged();
-        return this;
-      }
-
       // optional int32 getter_flags = 9;
       private int getterFlags_ ;
       /**
@@ -15936,7 +15529,7 @@ public final class DebugProtoBuf {
        * </pre>
        */
       public boolean hasGetterFlags() {
-        return ((bitField0_ & 0x00000004) == 0x00000004);
+        return ((bitField0_ & 0x00000002) == 0x00000002);
       }
       /**
        * <code>optional int32 getter_flags = 9;</code>
@@ -15964,7 +15557,7 @@ public final class DebugProtoBuf {
        * </pre>
        */
       public Builder setGetterFlags(int value) {
-        bitField0_ |= 0x00000004;
+        bitField0_ |= 0x00000002;
         getterFlags_ = value;
         onChanged();
         return this;
@@ -15981,7 +15574,7 @@ public final class DebugProtoBuf {
        * </pre>
        */
       public Builder clearGetterFlags() {
-        bitField0_ = (bitField0_ & ~0x00000004);
+        bitField0_ = (bitField0_ & ~0x00000002);
         getterFlags_ = 0;
         onChanged();
         return this;
@@ -15993,7 +15586,7 @@ public final class DebugProtoBuf {
        * <code>optional int32 setter_flags = 10;</code>
        */
       public boolean hasSetterFlags() {
-        return ((bitField0_ & 0x00000008) == 0x00000008);
+        return ((bitField0_ & 0x00000004) == 0x00000004);
       }
       /**
        * <code>optional int32 setter_flags = 10;</code>
@@ -16005,7 +15598,7 @@ public final class DebugProtoBuf {
        * <code>optional int32 setter_flags = 10;</code>
        */
       public Builder setSetterFlags(int value) {
-        bitField0_ |= 0x00000008;
+        bitField0_ |= 0x00000004;
         setterFlags_ = value;
         onChanged();
         return this;
@@ -16014,7 +15607,7 @@ public final class DebugProtoBuf {
        * <code>optional int32 setter_flags = 10;</code>
        */
       public Builder clearSetterFlags() {
-        bitField0_ = (bitField0_ & ~0x00000008);
+        bitField0_ = (bitField0_ & ~0x00000004);
         setterFlags_ = 0;
         onChanged();
         return this;
@@ -16024,9 +15617,9 @@ public final class DebugProtoBuf {
       private java.util.List<org.jetbrains.kotlin.serialization.DebugProtoBuf.TypeParameter> typeParameter_ =
         java.util.Collections.emptyList();
       private void ensureTypeParameterIsMutable() {
-        if (!((bitField0_ & 0x00000010) == 0x00000010)) {
+        if (!((bitField0_ & 0x00000008) == 0x00000008)) {
           typeParameter_ = new java.util.ArrayList<org.jetbrains.kotlin.serialization.DebugProtoBuf.TypeParameter>(typeParameter_);
-          bitField0_ |= 0x00000010;
+          bitField0_ |= 0x00000008;
          }
       }
 
@@ -16175,7 +15768,7 @@ public final class DebugProtoBuf {
       public Builder clearTypeParameter() {
         if (typeParameterBuilder_ == null) {
           typeParameter_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000010);
+          bitField0_ = (bitField0_ & ~0x00000008);
           onChanged();
         } else {
           typeParameterBuilder_.clear();
@@ -16252,7 +15845,7 @@ public final class DebugProtoBuf {
           typeParameterBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
               org.jetbrains.kotlin.serialization.DebugProtoBuf.TypeParameter, org.jetbrains.kotlin.serialization.DebugProtoBuf.TypeParameter.Builder, org.jetbrains.kotlin.serialization.DebugProtoBuf.TypeParameterOrBuilder>(
                   typeParameter_,
-                  ((bitField0_ & 0x00000010) == 0x00000010),
+                  ((bitField0_ & 0x00000008) == 0x00000008),
                   getParentForChildren(),
                   isClean());
           typeParameter_ = null;
@@ -16268,7 +15861,7 @@ public final class DebugProtoBuf {
        * <code>optional .org.jetbrains.kotlin.serialization.Type receiver_type = 5;</code>
        */
       public boolean hasReceiverType() {
-        return ((bitField0_ & 0x00000020) == 0x00000020);
+        return ((bitField0_ & 0x00000010) == 0x00000010);
       }
       /**
        * <code>optional .org.jetbrains.kotlin.serialization.Type receiver_type = 5;</code>
@@ -16293,7 +15886,7 @@ public final class DebugProtoBuf {
         } else {
           receiverTypeBuilder_.setMessage(value);
         }
-        bitField0_ |= 0x00000020;
+        bitField0_ |= 0x00000010;
         return this;
       }
       /**
@@ -16307,7 +15900,7 @@ public final class DebugProtoBuf {
         } else {
           receiverTypeBuilder_.setMessage(builderForValue.build());
         }
-        bitField0_ |= 0x00000020;
+        bitField0_ |= 0x00000010;
         return this;
       }
       /**
@@ -16315,7 +15908,7 @@ public final class DebugProtoBuf {
        */
       public Builder mergeReceiverType(org.jetbrains.kotlin.serialization.DebugProtoBuf.Type value) {
         if (receiverTypeBuilder_ == null) {
-          if (((bitField0_ & 0x00000020) == 0x00000020) &&
+          if (((bitField0_ & 0x00000010) == 0x00000010) &&
               receiverType_ != org.jetbrains.kotlin.serialization.DebugProtoBuf.Type.getDefaultInstance()) {
             receiverType_ =
               org.jetbrains.kotlin.serialization.DebugProtoBuf.Type.newBuilder(receiverType_).mergeFrom(value).buildPartial();
@@ -16326,7 +15919,7 @@ public final class DebugProtoBuf {
         } else {
           receiverTypeBuilder_.mergeFrom(value);
         }
-        bitField0_ |= 0x00000020;
+        bitField0_ |= 0x00000010;
         return this;
       }
       /**
@@ -16339,14 +15932,14 @@ public final class DebugProtoBuf {
         } else {
           receiverTypeBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x00000020);
+        bitField0_ = (bitField0_ & ~0x00000010);
         return this;
       }
       /**
        * <code>optional .org.jetbrains.kotlin.serialization.Type receiver_type = 5;</code>
        */
       public org.jetbrains.kotlin.serialization.DebugProtoBuf.Type.Builder getReceiverTypeBuilder() {
-        bitField0_ |= 0x00000020;
+        bitField0_ |= 0x00000010;
         onChanged();
         return getReceiverTypeFieldBuilder().getBuilder();
       }
@@ -16387,7 +15980,7 @@ public final class DebugProtoBuf {
        * </pre>
        */
       public boolean hasName() {
-        return ((bitField0_ & 0x00000040) == 0x00000040);
+        return ((bitField0_ & 0x00000020) == 0x00000020);
       }
       /**
        * <code>required int32 name = 6;</code>
@@ -16407,7 +16000,7 @@ public final class DebugProtoBuf {
        * </pre>
        */
       public Builder setName(int value) {
-        bitField0_ |= 0x00000040;
+        bitField0_ |= 0x00000020;
         name_ = value;
         onChanged();
         return this;
@@ -16420,7 +16013,7 @@ public final class DebugProtoBuf {
        * </pre>
        */
       public Builder clearName() {
-        bitField0_ = (bitField0_ & ~0x00000040);
+        bitField0_ = (bitField0_ & ~0x00000020);
         name_ = 0;
         onChanged();
         return this;
@@ -16430,9 +16023,9 @@ public final class DebugProtoBuf {
       private java.util.List<org.jetbrains.kotlin.serialization.DebugProtoBuf.Callable.ValueParameter> valueParameter_ =
         java.util.Collections.emptyList();
       private void ensureValueParameterIsMutable() {
-        if (!((bitField0_ & 0x00000080) == 0x00000080)) {
+        if (!((bitField0_ & 0x00000040) == 0x00000040)) {
           valueParameter_ = new java.util.ArrayList<org.jetbrains.kotlin.serialization.DebugProtoBuf.Callable.ValueParameter>(valueParameter_);
-          bitField0_ |= 0x00000080;
+          bitField0_ |= 0x00000040;
          }
       }
 
@@ -16625,7 +16218,7 @@ public final class DebugProtoBuf {
       public Builder clearValueParameter() {
         if (valueParameterBuilder_ == null) {
           valueParameter_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000080);
+          bitField0_ = (bitField0_ & ~0x00000040);
           onChanged();
         } else {
           valueParameterBuilder_.clear();
@@ -16730,7 +16323,7 @@ public final class DebugProtoBuf {
           valueParameterBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
               org.jetbrains.kotlin.serialization.DebugProtoBuf.Callable.ValueParameter, org.jetbrains.kotlin.serialization.DebugProtoBuf.Callable.ValueParameter.Builder, org.jetbrains.kotlin.serialization.DebugProtoBuf.Callable.ValueParameterOrBuilder>(
                   valueParameter_,
-                  ((bitField0_ & 0x00000080) == 0x00000080),
+                  ((bitField0_ & 0x00000040) == 0x00000040),
                   getParentForChildren(),
                   isClean());
           valueParameter_ = null;
@@ -16746,7 +16339,7 @@ public final class DebugProtoBuf {
        * <code>required .org.jetbrains.kotlin.serialization.Type return_type = 8;</code>
        */
       public boolean hasReturnType() {
-        return ((bitField0_ & 0x00000100) == 0x00000100);
+        return ((bitField0_ & 0x00000080) == 0x00000080);
       }
       /**
        * <code>required .org.jetbrains.kotlin.serialization.Type return_type = 8;</code>
@@ -16771,7 +16364,7 @@ public final class DebugProtoBuf {
         } else {
           returnTypeBuilder_.setMessage(value);
         }
-        bitField0_ |= 0x00000100;
+        bitField0_ |= 0x00000080;
         return this;
       }
       /**
@@ -16785,7 +16378,7 @@ public final class DebugProtoBuf {
         } else {
           returnTypeBuilder_.setMessage(builderForValue.build());
         }
-        bitField0_ |= 0x00000100;
+        bitField0_ |= 0x00000080;
         return this;
       }
       /**
@@ -16793,7 +16386,7 @@ public final class DebugProtoBuf {
        */
       public Builder mergeReturnType(org.jetbrains.kotlin.serialization.DebugProtoBuf.Type value) {
         if (returnTypeBuilder_ == null) {
-          if (((bitField0_ & 0x00000100) == 0x00000100) &&
+          if (((bitField0_ & 0x00000080) == 0x00000080) &&
               returnType_ != org.jetbrains.kotlin.serialization.DebugProtoBuf.Type.getDefaultInstance()) {
             returnType_ =
               org.jetbrains.kotlin.serialization.DebugProtoBuf.Type.newBuilder(returnType_).mergeFrom(value).buildPartial();
@@ -16804,7 +16397,7 @@ public final class DebugProtoBuf {
         } else {
           returnTypeBuilder_.mergeFrom(value);
         }
-        bitField0_ |= 0x00000100;
+        bitField0_ |= 0x00000080;
         return this;
       }
       /**
@@ -16817,14 +16410,14 @@ public final class DebugProtoBuf {
         } else {
           returnTypeBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x00000100);
+        bitField0_ = (bitField0_ & ~0x00000080);
         return this;
       }
       /**
        * <code>required .org.jetbrains.kotlin.serialization.Type return_type = 8;</code>
        */
       public org.jetbrains.kotlin.serialization.DebugProtoBuf.Type.Builder getReturnTypeBuilder() {
-        bitField0_ |= 0x00000100;
+        bitField0_ |= 0x00000080;
         onChanged();
         return getReturnTypeFieldBuilder().getBuilder();
       }
@@ -16952,97 +16545,96 @@ public final class DebugProtoBuf {
     java.lang.String[] descriptorData = {
       "\n.core/serialization/src/descriptors.deb" +
       "ug.proto\022\"org.jetbrains.kotlin.serializa" +
-      "tion\"\035\n\013StringTable\022\016\n\006string\030\001 \003(\t\"\275\002\n\022" +
+      "tion\"\035\n\013StringTable\022\016\n\006string\030\001 \003(\t\"\310\002\n\022" +
       "QualifiedNameTable\022\\\n\016qualified_name\030\001 \003" +
       "(\0132D.org.jetbrains.kotlin.serialization." +
-      "QualifiedNameTable.QualifiedName\032\310\001\n\rQua" +
+      "QualifiedNameTable.QualifiedName\032\323\001\n\rQua" +
       "lifiedName\022!\n\025parent_qualified_name\030\001 \001(" +
       "\005:\002-1\022\022\n\nshort_name\030\002 \002(\005\022`\n\004kind\030\003 \001(\0162" +
       "I.org.jetbrains.kotlin.serialization.Qua" +
       "lifiedNameTable.QualifiedName.Kind:\007PACK",
-      "AGE\"\036\n\004Kind\022\t\n\005CLASS\020\000\022\013\n\007PACKAGE\020\001\"\335\005\n\n" +
-      "Annotation\022\n\n\002id\030\001 \002(\005\022I\n\010argument\030\002 \003(\013" +
-      "27.org.jetbrains.kotlin.serialization.An" +
-      "notation.Argument\032\367\004\n\010Argument\022\017\n\007name_i" +
-      "d\030\001 \002(\005\022L\n\005value\030\002 \002(\0132=.org.jetbrains.k" +
-      "otlin.serialization.Annotation.Argument." +
-      "Value\032\213\004\n\005Value\022P\n\004type\030\001 \001(\0162B.org.jetb" +
-      "rains.kotlin.serialization.Annotation.Ar" +
-      "gument.Value.Type\022\021\n\tint_value\030\002 \001(\022\022\023\n\013" +
-      "float_value\030\003 \001(\002\022\024\n\014double_value\030\004 \001(\001\022",
-      "\024\n\014string_value\030\005 \001(\005\022\020\n\010class_id\030\006 \001(\005\022" +
-      "\025\n\renum_value_id\030\007 \001(\005\022B\n\nannotation\030\010 \001" +
-      "(\0132..org.jetbrains.kotlin.serialization." +
-      "Annotation\022T\n\rarray_element\030\t \003(\0132=.org." +
+      "AGE\")\n\004Kind\022\t\n\005CLASS\020\000\022\013\n\007PACKAGE\020\001\022\t\n\005L" +
+      "OCAL\020\002\"\335\005\n\nAnnotation\022\n\n\002id\030\001 \002(\005\022I\n\010arg" +
+      "ument\030\002 \003(\01327.org.jetbrains.kotlin.seria" +
+      "lization.Annotation.Argument\032\367\004\n\010Argumen" +
+      "t\022\017\n\007name_id\030\001 \002(\005\022L\n\005value\030\002 \002(\0132=.org." +
       "jetbrains.kotlin.serialization.Annotatio" +
-      "n.Argument.Value\"\230\001\n\004Type\022\010\n\004BYTE\020\000\022\010\n\004C" +
-      "HAR\020\001\022\t\n\005SHORT\020\002\022\007\n\003INT\020\003\022\010\n\004LONG\020\004\022\t\n\005F" +
-      "LOAT\020\005\022\n\n\006DOUBLE\020\006\022\013\n\007BOOLEAN\020\007\022\n\n\006STRIN" +
-      "G\020\010\022\t\n\005CLASS\020\t\022\010\n\004ENUM\020\n\022\016\n\nANNOTATION\020\013" +
-      "\022\t\n\005ARRAY\020\014\"\377\004\n\004Type\022I\n\013constructor\030\001 \002(",
-      "\01324.org.jetbrains.kotlin.serialization.T" +
-      "ype.Constructor\022C\n\010argument\030\002 \003(\01321.org." +
-      "jetbrains.kotlin.serialization.Type.Argu" +
-      "ment\022\027\n\010nullable\030\003 \001(\010:\005false\022%\n\035flexibl" +
-      "e_type_capabilities_id\030\004 \001(\005\022F\n\024flexible" +
-      "_upper_bound\030\005 \001(\0132(.org.jetbrains.kotli" +
-      "n.serialization.Type\032\220\001\n\013Constructor\022N\n\004" +
-      "kind\030\001 \001(\01629.org.jetbrains.kotlin.serial" +
-      "ization.Type.Constructor.Kind:\005CLASS\022\n\n\002" +
-      "id\030\002 \002(\005\"%\n\004Kind\022\t\n\005CLASS\020\000\022\022\n\016TYPE_PARA",
-      "METER\020\001\032\313\001\n\010Argument\022U\n\nprojection\030\001 \001(\016" +
-      "2<.org.jetbrains.kotlin.serialization.Ty" +
-      "pe.Argument.Projection:\003INV\0226\n\004type\030\002 \002(" +
-      "\0132(.org.jetbrains.kotlin.serialization.T" +
-      "ype\"0\n\nProjection\022\006\n\002IN\020\000\022\007\n\003OUT\020\001\022\007\n\003IN" +
-      "V\020\002\022\010\n\004STAR\020\003\"\371\001\n\rTypeParameter\022\n\n\002id\030\001 " +
-      "\002(\005\022\014\n\004name\030\002 \002(\005\022\026\n\007reified\030\003 \001(\010:\005fals" +
-      "e\022Q\n\010variance\030\004 \001(\0162:.org.jetbrains.kotl" +
-      "in.serialization.TypeParameter.Variance:" +
-      "\003INV\022=\n\013upper_bound\030\005 \003(\0132(.org.jetbrain",
-      "s.kotlin.serialization.Type\"$\n\010Variance\022" +
-      "\006\n\002IN\020\000\022\007\n\003OUT\020\001\022\007\n\003INV\020\002\"\372\004\n\005Class\022\020\n\005f" +
-      "lags\030\001 \001(\005:\0010\022\030\n\020extra_visibility\030\002 \001(\t\022" +
-      "\017\n\007fq_name\030\003 \002(\005\022\031\n\021class_object_name\030\004 " +
-      "\001(\005\022I\n\016type_parameter\030\005 \003(\01321.org.jetbra" +
-      "ins.kotlin.serialization.TypeParameter\022;" +
-      "\n\tsupertype\030\006 \003(\0132(.org.jetbrains.kotlin" +
-      ".serialization.Type\022\031\n\021nested_class_name" +
-      "\030\007 \003(\005\022<\n\006member\030\013 \003(\0132,.org.jetbrains.k" +
-      "otlin.serialization.Callable\022\022\n\nenum_ent",
-      "ry\030\014 \003(\005\022Y\n\023primary_constructor\030\r \001(\0132<." +
-      "org.jetbrains.kotlin.serialization.Class" +
-      ".PrimaryConstructor\032P\n\022PrimaryConstructo" +
-      "r\022:\n\004data\030\001 \001(\0132,.org.jetbrains.kotlin.s" +
-      "erialization.Callable\"p\n\004Kind\022\t\n\005CLASS\020\000" +
-      "\022\t\n\005TRAIT\020\001\022\016\n\nENUM_CLASS\020\002\022\016\n\nENUM_ENTR" +
-      "Y\020\003\022\024\n\020ANNOTATION_CLASS\020\004\022\n\n\006OBJECT\020\005\022\020\n" +
-      "\014CLASS_OBJECT\020\006*\005\010d\020\310\001\"N\n\007Package\022<\n\006mem" +
-      "ber\030\001 \003(\0132,.org.jetbrains.kotlin.seriali" +
-      "zation.Callable*\005\010d\020\310\001\"\332\005\n\010Callable\022\r\n\005f",
-      "lags\030\001 \001(\005\022\030\n\020extra_visibility\030\002 \001(\t\022\024\n\014" +
-      "getter_flags\030\t \001(\005\022\024\n\014setter_flags\030\n \001(\005" +
-      "\022I\n\016type_parameter\030\004 \003(\01321.org.jetbrains" +
-      ".kotlin.serialization.TypeParameter\022?\n\rr" +
-      "eceiver_type\030\005 \001(\0132(.org.jetbrains.kotli" +
-      "n.serialization.Type\022\014\n\004name\030\006 \002(\005\022T\n\017va" +
-      "lue_parameter\030\007 \003(\0132;.org.jetbrains.kotl" +
-      "in.serialization.Callable.ValueParameter" +
-      "\022=\n\013return_type\030\010 \002(\0132(.org.jetbrains.ko" +
-      "tlin.serialization.Type\032\263\001\n\016ValueParamet",
-      "er\022\r\n\005flags\030\001 \001(\005\022\014\n\004name\030\002 \002(\005\0226\n\004type\030" +
-      "\003 \002(\0132(.org.jetbrains.kotlin.serializati" +
-      "on.Type\022E\n\023vararg_element_type\030\004 \001(\0132(.o" +
-      "rg.jetbrains.kotlin.serialization.Type*\005" +
-      "\010d\020\310\001\"Q\n\nMemberKind\022\017\n\013DECLARATION\020\000\022\021\n\r" +
-      "FAKE_OVERRIDE\020\001\022\016\n\nDELEGATION\020\002\022\017\n\013SYNTH" +
-      "ESIZED\020\003\":\n\014CallableKind\022\007\n\003FUN\020\000\022\007\n\003VAL" +
-      "\020\001\022\007\n\003VAR\020\002\022\017\n\013CONSTRUCTOR\020\003*\005\010d\020\310\001*-\n\010M" +
-      "odality\022\t\n\005FINAL\020\000\022\010\n\004OPEN\020\001\022\014\n\010ABSTRACT" +
-      "\020\002*b\n\nVisibility\022\014\n\010INTERNAL\020\000\022\013\n\007PRIVAT",
-      "E\020\001\022\r\n\tPROTECTED\020\002\022\n\n\006PUBLIC\020\003\022\023\n\017PRIVAT" +
-      "E_TO_THIS\020\004\022\t\n\005EXTRA\020\005B\022B\rDebugProtoBuf\210" +
-      "\001\000"
+      "n.Argument.Value\032\213\004\n\005Value\022P\n\004type\030\001 \001(\016" +
+      "2B.org.jetbrains.kotlin.serialization.An" +
+      "notation.Argument.Value.Type\022\021\n\tint_valu" +
+      "e\030\002 \001(\022\022\023\n\013float_value\030\003 \001(\002\022\024\n\014double_v",
+      "alue\030\004 \001(\001\022\024\n\014string_value\030\005 \001(\005\022\020\n\010clas" +
+      "s_id\030\006 \001(\005\022\025\n\renum_value_id\030\007 \001(\005\022B\n\nann" +
+      "otation\030\010 \001(\0132..org.jetbrains.kotlin.ser" +
+      "ialization.Annotation\022T\n\rarray_element\030\t" +
+      " \003(\0132=.org.jetbrains.kotlin.serializatio" +
+      "n.Annotation.Argument.Value\"\230\001\n\004Type\022\010\n\004" +
+      "BYTE\020\000\022\010\n\004CHAR\020\001\022\t\n\005SHORT\020\002\022\007\n\003INT\020\003\022\010\n\004" +
+      "LONG\020\004\022\t\n\005FLOAT\020\005\022\n\n\006DOUBLE\020\006\022\013\n\007BOOLEAN" +
+      "\020\007\022\n\n\006STRING\020\010\022\t\n\005CLASS\020\t\022\010\n\004ENUM\020\n\022\016\n\nA" +
+      "NNOTATION\020\013\022\t\n\005ARRAY\020\014\"\377\004\n\004Type\022I\n\013const",
+      "ructor\030\001 \002(\01324.org.jetbrains.kotlin.seri" +
+      "alization.Type.Constructor\022C\n\010argument\030\002" +
+      " \003(\01321.org.jetbrains.kotlin.serializatio" +
+      "n.Type.Argument\022\027\n\010nullable\030\003 \001(\010:\005false" +
+      "\022%\n\035flexible_type_capabilities_id\030\004 \001(\005\022" +
+      "F\n\024flexible_upper_bound\030\005 \001(\0132(.org.jetb" +
+      "rains.kotlin.serialization.Type\032\220\001\n\013Cons" +
+      "tructor\022N\n\004kind\030\001 \001(\01629.org.jetbrains.ko" +
+      "tlin.serialization.Type.Constructor.Kind" +
+      ":\005CLASS\022\n\n\002id\030\002 \002(\005\"%\n\004Kind\022\t\n\005CLASS\020\000\022\022",
+      "\n\016TYPE_PARAMETER\020\001\032\313\001\n\010Argument\022U\n\nproje" +
+      "ction\030\001 \001(\0162<.org.jetbrains.kotlin.seria" +
+      "lization.Type.Argument.Projection:\003INV\0226" +
+      "\n\004type\030\002 \002(\0132(.org.jetbrains.kotlin.seri" +
+      "alization.Type\"0\n\nProjection\022\006\n\002IN\020\000\022\007\n\003" +
+      "OUT\020\001\022\007\n\003INV\020\002\022\010\n\004STAR\020\003\"\371\001\n\rTypeParamet" +
+      "er\022\n\n\002id\030\001 \002(\005\022\014\n\004name\030\002 \002(\005\022\026\n\007reified\030" +
+      "\003 \001(\010:\005false\022Q\n\010variance\030\004 \001(\0162:.org.jet" +
+      "brains.kotlin.serialization.TypeParamete" +
+      "r.Variance:\003INV\022=\n\013upper_bound\030\005 \003(\0132(.o",
+      "rg.jetbrains.kotlin.serialization.Type\"$" +
+      "\n\010Variance\022\006\n\002IN\020\000\022\007\n\003OUT\020\001\022\007\n\003INV\020\002\"\340\004\n" +
+      "\005Class\022\020\n\005flags\030\001 \001(\005:\0010\022\017\n\007fq_name\030\003 \002(" +
+      "\005\022\031\n\021class_object_name\030\004 \001(\005\022I\n\016type_par" +
+      "ameter\030\005 \003(\01321.org.jetbrains.kotlin.seri" +
+      "alization.TypeParameter\022;\n\tsupertype\030\006 \003" +
+      "(\0132(.org.jetbrains.kotlin.serialization." +
+      "Type\022\031\n\021nested_class_name\030\007 \003(\005\022<\n\006membe" +
+      "r\030\013 \003(\0132,.org.jetbrains.kotlin.serializa" +
+      "tion.Callable\022\022\n\nenum_entry\030\014 \003(\005\022Y\n\023pri",
+      "mary_constructor\030\r \001(\0132<.org.jetbrains.k" +
+      "otlin.serialization.Class.PrimaryConstru" +
+      "ctor\032P\n\022PrimaryConstructor\022:\n\004data\030\001 \001(\013" +
+      "2,.org.jetbrains.kotlin.serialization.Ca" +
+      "llable\"p\n\004Kind\022\t\n\005CLASS\020\000\022\t\n\005TRAIT\020\001\022\016\n\n" +
+      "ENUM_CLASS\020\002\022\016\n\nENUM_ENTRY\020\003\022\024\n\020ANNOTATI" +
+      "ON_CLASS\020\004\022\n\n\006OBJECT\020\005\022\020\n\014CLASS_OBJECT\020\006" +
+      "*\005\010d\020\310\001\"N\n\007Package\022<\n\006member\030\001 \003(\0132,.org" +
+      ".jetbrains.kotlin.serialization.Callable" +
+      "*\005\010d\020\310\001\"\300\005\n\010Callable\022\r\n\005flags\030\001 \001(\005\022\024\n\014g",
+      "etter_flags\030\t \001(\005\022\024\n\014setter_flags\030\n \001(\005\022" +
+      "I\n\016type_parameter\030\004 \003(\01321.org.jetbrains." +
+      "kotlin.serialization.TypeParameter\022?\n\rre" +
+      "ceiver_type\030\005 \001(\0132(.org.jetbrains.kotlin" +
+      ".serialization.Type\022\014\n\004name\030\006 \002(\005\022T\n\017val" +
+      "ue_parameter\030\007 \003(\0132;.org.jetbrains.kotli" +
+      "n.serialization.Callable.ValueParameter\022" +
+      "=\n\013return_type\030\010 \002(\0132(.org.jetbrains.kot" +
+      "lin.serialization.Type\032\263\001\n\016ValueParamete" +
+      "r\022\r\n\005flags\030\001 \001(\005\022\014\n\004name\030\002 \002(\005\0226\n\004type\030\003",
+      " \002(\0132(.org.jetbrains.kotlin.serializatio" +
+      "n.Type\022E\n\023vararg_element_type\030\004 \001(\0132(.or" +
+      "g.jetbrains.kotlin.serialization.Type*\005\010" +
+      "d\020\310\001\"Q\n\nMemberKind\022\017\n\013DECLARATION\020\000\022\021\n\rF" +
+      "AKE_OVERRIDE\020\001\022\016\n\nDELEGATION\020\002\022\017\n\013SYNTHE" +
+      "SIZED\020\003\":\n\014CallableKind\022\007\n\003FUN\020\000\022\007\n\003VAL\020" +
+      "\001\022\007\n\003VAR\020\002\022\017\n\013CONSTRUCTOR\020\003*\005\010d\020\310\001*-\n\010Mo" +
+      "dality\022\t\n\005FINAL\020\000\022\010\n\004OPEN\020\001\022\014\n\010ABSTRACT\020" +
+      "\002*b\n\nVisibility\022\014\n\010INTERNAL\020\000\022\013\n\007PRIVATE" +
+      "\020\001\022\r\n\tPROTECTED\020\002\022\n\n\006PUBLIC\020\003\022\023\n\017PRIVATE",
+      "_TO_THIS\020\004\022\t\n\005LOCAL\020\005B\022B\rDebugProtoBuf\210\001" +
+      "\000"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -17114,7 +16706,7 @@ public final class DebugProtoBuf {
           internal_static_org_jetbrains_kotlin_serialization_Class_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_org_jetbrains_kotlin_serialization_Class_descriptor,
-              new java.lang.String[] { "Flags", "ExtraVisibility", "FqName", "ClassObjectName", "TypeParameter", "Supertype", "NestedClassName", "Member", "EnumEntry", "PrimaryConstructor", });
+              new java.lang.String[] { "Flags", "FqName", "ClassObjectName", "TypeParameter", "Supertype", "NestedClassName", "Member", "EnumEntry", "PrimaryConstructor", });
           internal_static_org_jetbrains_kotlin_serialization_Class_PrimaryConstructor_descriptor =
             internal_static_org_jetbrains_kotlin_serialization_Class_descriptor.getNestedTypes().get(0);
           internal_static_org_jetbrains_kotlin_serialization_Class_PrimaryConstructor_fieldAccessorTable = new
@@ -17132,7 +16724,7 @@ public final class DebugProtoBuf {
           internal_static_org_jetbrains_kotlin_serialization_Callable_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_org_jetbrains_kotlin_serialization_Callable_descriptor,
-              new java.lang.String[] { "Flags", "ExtraVisibility", "GetterFlags", "SetterFlags", "TypeParameter", "ReceiverType", "Name", "ValueParameter", "ReturnType", });
+              new java.lang.String[] { "Flags", "GetterFlags", "SetterFlags", "TypeParameter", "ReceiverType", "Name", "ValueParameter", "ReturnType", });
           internal_static_org_jetbrains_kotlin_serialization_Callable_ValueParameter_descriptor =
             internal_static_org_jetbrains_kotlin_serialization_Callable_descriptor.getNestedTypes().get(0);
           internal_static_org_jetbrains_kotlin_serialization_Callable_ValueParameter_fieldAccessorTable = new

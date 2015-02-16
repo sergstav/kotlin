@@ -17,33 +17,26 @@
 package org.jetbrains.kotlin.idea.decompiler.stubBuilder
 
 import org.jetbrains.kotlin.name.FqName
-import org.jetbrains.kotlin.psi.stubs.impl.KotlinFileStubImpl
-import org.jetbrains.kotlin.psi.stubs.impl.KotlinPlaceHolderStubImpl
+import org.jetbrains.kotlin.psi.stubs.impl.*
 import org.jetbrains.kotlin.psi.JetPackageDirective
 import org.jetbrains.kotlin.psi.stubs.elements.JetStubElementTypes
 import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.PsiElement
-import org.jetbrains.kotlin.psi.stubs.impl.KotlinNameReferenceExpressionStubImpl
 import org.jetbrains.kotlin.psi.JetDotQualifiedExpression
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.psi.stubs.KotlinUserTypeStub
 import org.jetbrains.kotlin.name.SpecialNames
-import org.jetbrains.kotlin.psi.stubs.impl.KotlinUserTypeStubImpl
 import org.jetbrains.kotlin.lexer.JetModifierKeywordToken
 import org.jetbrains.kotlin.serialization.Flags
 import org.jetbrains.kotlin.lexer.JetTokens
-import org.jetbrains.kotlin.psi.stubs.impl.KotlinModifierListStubImpl
-import org.jetbrains.kotlin.psi.stubs.impl.ModifierMaskUtils
 import org.jetbrains.kotlin.serialization.ProtoBuf
 import com.intellij.util.io.StringRef
 import org.jetbrains.kotlin.serialization.deserialization.ProtoContainer
-import org.jetbrains.kotlin.psi.stubs.impl.KotlinAnnotationEntryStubImpl
 import org.jetbrains.kotlin.psi.JetConstructorCalleeExpression
 import org.jetbrains.kotlin.psi.JetTypeReference
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.serialization.deserialization.AnnotatedCallableKind
 import org.jetbrains.kotlin.serialization.ProtoBuf.Callable.CallableKind
-import java.util.ArrayList
 
 fun createTopLevelClassStub(classId: ClassId, classProto: ProtoBuf.Class, context: ClsStubBuilderContext): KotlinFileStubImpl {
     val fileStub = createFileStub(classId.getPackageFqName())
@@ -135,7 +128,6 @@ enum class FlagsToModifiers {
                 ProtoBuf.Visibility.INTERNAL -> JetTokens.INTERNAL_KEYWORD
                 ProtoBuf.Visibility.PROTECTED -> JetTokens.PROTECTED_KEYWORD
                 ProtoBuf.Visibility.PUBLIC -> JetTokens.PUBLIC_KEYWORD
-            //TODO: support extra visibility
                 else -> throw IllegalStateException("Unexpected visibility: $visibility")
             }
         }
