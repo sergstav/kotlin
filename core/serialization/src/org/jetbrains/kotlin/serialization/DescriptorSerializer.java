@@ -145,6 +145,10 @@ public class DescriptorSerializer {
 
         DescriptorSerializer local = createChildSerializer();
 
+        // If return type is DeferredType, the following code will force computation (during which compileTimeInitializer will be set for property descriptor, if needed)
+        //noinspection ConstantConditions
+        builder.setReturnType(local.type(descriptor.getReturnType()));
+
         boolean hasGetter = false;
         boolean hasSetter = false;
         boolean hasConstant = false;
@@ -210,9 +214,6 @@ public class DescriptorSerializer {
         for (ValueParameterDescriptor valueParameterDescriptor : descriptor.getValueParameters()) {
             builder.addValueParameter(local.valueParameter(valueParameterDescriptor));
         }
-
-        //noinspection ConstantConditions
-        builder.setReturnType(local.type(descriptor.getReturnType()));
 
         extension.serializeCallable(descriptor, builder, stringTable);
 
