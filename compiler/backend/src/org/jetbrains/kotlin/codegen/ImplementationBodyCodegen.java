@@ -37,6 +37,7 @@ import org.jetbrains.kotlin.lexer.JetTokens;
 import org.jetbrains.kotlin.load.java.JvmAbi;
 import org.jetbrains.kotlin.load.java.JvmAnnotationNames;
 import org.jetbrains.kotlin.load.java.descriptors.JavaCallableMemberDescriptor;
+import org.jetbrains.kotlin.name.FqName;
 import org.jetbrains.kotlin.name.Name;
 import org.jetbrains.kotlin.psi.*;
 import org.jetbrains.kotlin.resolve.BindingContext;
@@ -150,7 +151,7 @@ public class ImplementationBodyCodegen extends ClassBodyCodegen {
             isStatic = !jetClass.isInner();
         }
         else {
-            isStatic = myClass.getParent() instanceof JetClassObject;
+            isStatic = myClass instanceof JetObjectDeclaration && ((JetObjectDeclaration) myClass).isClassObject() ;
             isFinal = true;
         }
 
@@ -958,39 +959,42 @@ public class ImplementationBodyCodegen extends ClassBodyCodegen {
     }
 
     private void generateFieldForSingleton() {
-        if (isEnumEntry(descriptor)) return;
-
-        ClassDescriptor classObjectDescriptor = descriptor.getClassObjectDescriptor();
-        ClassDescriptor fieldTypeDescriptor;
-        JetClassOrObject original;
-        if (isObject(descriptor)) {
-            original = myClass;
-            fieldTypeDescriptor = descriptor;
-        }
-        else if (classObjectDescriptor != null) {
-            JetClassObject classObject = ((JetClass) myClass).getClassObject();
-            assert classObject != null : "Class object not found: " + myClass.getText();
-            original = classObject.getObjectDeclaration();
-            fieldTypeDescriptor = classObjectDescriptor;
-        }
-        else {
-            return;
-        }
-
-        StackValue.Field field = StackValue.singleton(fieldTypeDescriptor, typeMapper);
-
-        v.newField(OtherOrigin(original), ACC_PUBLIC | ACC_STATIC | ACC_FINAL, field.name, field.type.getDescriptor(), null, null);
-
-        if (state.getClassBuilderMode() != ClassBuilderMode.FULL) return;
+        if (isEnumEntry(descriptor) || isClassObject(descriptor)) return;
 
         if (isObject(descriptor)) {
+            StackValue.Field field = StackValue.singleton(descriptor, typeMapper);
+            v.newField(OtherOrigin(myClass), ACC_PUBLIC | ACC_STATIC | ACC_FINAL, field.name, field.type.getDescriptor(), null, null);
+
+            if (state.getClassBuilderMode() != ClassBuilderMode.FULL) return;
+
             // Invoke the object constructor but ignore the result because INSTANCE$ will be initialized in the first line of <init>
             InstructionAdapter v = createOrGetClInitCodegen().v;
             v.anew(classAsmType);
             v.invokespecial(classAsmType.getInternalName(), "<init>", "()V", false);
+            return;
         }
-        else if (!isClassObjectWithBackingFieldsInOuter(fieldTypeDescriptor)) {
-            generateClassObjectInitializer(fieldTypeDescriptor);
+
+        ClassDescriptor classObjectDescriptor = descriptor.getDefaultObjectDescriptor();
+        if (classObjectDescriptor == null) {
+            return;
+        }
+
+        JetObjectDeclaration classObject = ((JetClass) myClass).getClassObject();
+        assert classObject != null : "Class object not found: " + myClass.getText();
+
+        StackValue.Field field = StackValue.singleton(classObjectDescriptor, typeMapper);
+        v.newField(OtherOrigin(classObject), ACC_PUBLIC | ACC_STATIC | ACC_FINAL, field.name, field.type.getDescriptor(), null, null);
+
+        StackValue.Field deprecatedField = StackValue.deprecatedClassObjectAccessor(classObjectDescriptor, typeMapper);
+        FieldVisitor fv = v.newField(OtherOrigin(classObject), ACC_PUBLIC | ACC_STATIC | ACC_FINAL | ACC_DEPRECATED,
+                                     deprecatedField.name, deprecatedField.type.getDescriptor(), null, null);
+
+        fv.visitAnnotation(asmDescByFqNameWithoutInnerClasses(new FqName("java.lang.Deprecated")), true).visitEnd();
+
+        if (state.getClassBuilderMode() != ClassBuilderMode.FULL) return;
+
+        if (!isClassObjectWithBackingFieldsInOuter(classObjectDescriptor)) {
+            generateClassObjectInitializer(classObjectDescriptor);
         }
     }
 
@@ -1022,7 +1026,7 @@ public class ImplementationBodyCodegen extends ClassBodyCodegen {
 
     private int putClassObjectInLocalVar(ExpressionCodegen codegen) {
         FrameMap frameMap = codegen.myFrameMap;
-        ClassDescriptor classObjectDescriptor = descriptor.getClassObjectDescriptor();
+        ClassDescriptor classObjectDescriptor = descriptor.getDefaultObjectDescriptor();
         int classObjectIndex = frameMap.getIndex(classObjectDescriptor);
         if (classObjectIndex == -1) {
             classObjectIndex = frameMap.enter(classObjectDescriptor, OBJECT_TYPE);
@@ -1043,7 +1047,10 @@ public class ImplementationBodyCodegen extends ClassBodyCodegen {
         ExpressionCodegen codegen = createOrGetClInitCodegen();
         FunctionDescriptor constructor = codegen.accessibleFunctionDescriptor(KotlinPackage.single(classObject.getConstructors()));
         generateMethodCallTo(constructor, codegen.v);
-        StackValue.singleton(classObject, typeMapper).store(StackValue.onStack(typeMapper.mapClass(classObject)), codegen.v, true);
+        codegen.v.dup();
+        StackValue instance = StackValue.onStack(typeMapper.mapClass(classObject));
+        StackValue.singleton(classObject, typeMapper).store(instance, codegen.v, true);
+        StackValue.deprecatedClassObjectAccessor(classObject, typeMapper).store(instance, codegen.v, true);
     }
 
     private void generatePrimaryConstructor(final DelegationFieldsInfo delegationFieldsInfo) {
@@ -1130,7 +1137,6 @@ public class ImplementationBodyCodegen extends ClassBodyCodegen {
 
         if (isClassObjectWithBackingFieldsInOuter(descriptor)) {
             final ImplementationBodyCodegen parentCodegen = (ImplementationBodyCodegen) getParentCodegen();
-            //generate OBJECT$
             parentCodegen.generateClassObjectInitializer(descriptor);
             generateInitializers(new Function0<ExpressionCodegen>() {
                 @Override

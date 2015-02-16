@@ -58,7 +58,7 @@ fun createPackageFacadeFileStub(
 ): KotlinFileStubImpl {
     val fileStub = createFileStub(packageFqName)
     val container = ProtoContainer(null, packageFqName)
-    for (callableProto in sortCallableStubs(packageProto.getMemberList())) {
+    for (callableProto in packageProto.getMemberList()) {
         createCallableStub(fileStub, callableProto, c, container)
     }
     return fileStub
@@ -97,8 +97,7 @@ fun createStubForPackageName(packageDirectiveStub: KotlinPlaceHolderStubImpl<Jet
 }
 
 fun createStubForTypeName(typeClassId: ClassId, parent: StubElement<out PsiElement>): KotlinUserTypeStub {
-    //TODO: should go away with default objects
-    val segments = typeClassId.asSingleFqName().pathSegments().filter { !SpecialNames.isClassObjectName(it) }.toArrayList()
+    val segments = typeClassId.asSingleFqName().pathSegments().toArrayList()
     assert(segments.isNotEmpty())
     val iterator = segments.listIterator(segments.size())
 
@@ -202,32 +201,3 @@ val ProtoBuf.Callable.annotatedCallableKind: AnnotatedCallableKind
 fun Name.ref() = StringRef.fromString(this.asString())
 
 fun FqName.ref() = StringRef.fromString(this.asString())
-
-//NOTE: sorting should be removed when stub version is increased next time
-// this workaround is relevant for abi version 19
-// this is needed to avoid building stubs in wrong order for compilers built before 77dd027d690c0fe48abccdea04bfeab871c7c6de was introduced
-fun sortCallableStubs(unordered: List<ProtoBuf.Callable>): List<ProtoBuf.Callable> {
-    val extensionProperties = arrayListOf<ProtoBuf.Callable>()
-    val nonExtensionProperties = arrayListOf<ProtoBuf.Callable>()
-    val extensionFunctions = arrayListOf<ProtoBuf.Callable>()
-    val nonExtensionFunctions = arrayListOf<ProtoBuf.Callable>()
-    for (callable in unordered) {
-        val isExtension = callable.hasReceiverType()
-        when (Flags.CALLABLE_KIND[callable.getFlags()]) {
-            CallableKind.FUN -> {
-                if (isExtension) extensionFunctions.add(callable) else nonExtensionFunctions.add(callable)
-            }
-            CallableKind.VAL, CallableKind.VAR -> {
-                if (isExtension) extensionProperties.add(callable) else nonExtensionProperties.add(callable)
-            }
-        }
-    }
-    val result = ArrayList<ProtoBuf.Callable>(
-            extensionProperties.size() + nonExtensionProperties.size() + extensionFunctions.size() + nonExtensionFunctions.size()
-    )
-    result.addAll(nonExtensionProperties)
-    result.addAll(extensionProperties)
-    result.addAll(nonExtensionFunctions)
-    result.addAll(extensionFunctions)
-    return result
-}
