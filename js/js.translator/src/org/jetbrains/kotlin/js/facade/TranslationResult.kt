@@ -37,7 +37,7 @@ import org.jetbrains.kotlin.backend.common.output.SimpleOutputFile
 import com.intellij.openapi.util.text.StringUtil
 import org.jetbrains.kotlin.backend.common.output.SimpleOutputFileCollection
 
-public open class TranslationResult protected (public val diagnostics: Diagnostics) {
+public abstract class TranslationResult protected (public val diagnostics: Diagnostics) {
 
     public class Fail(diagnostics: Diagnostics) : TranslationResult(diagnostics)
 
