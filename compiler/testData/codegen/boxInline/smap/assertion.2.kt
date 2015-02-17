@@ -12,10 +12,12 @@ public inline fun massert(value: Boolean, lazyMessage: () -> String) {
 }
 
 
-public fun dassert(value: Boolean, message: Any = "Assertion failed") {
+public inline fun massert(value: Boolean, message: Any = "Assertion failed") {
     if (ASSERTIONS_ENABLED) {
         if (!value) {
             throw AssertionError(message)
         }
     }
 }
+
+//SMAP ABSENT
