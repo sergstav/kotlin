@@ -42,7 +42,7 @@ import org.jetbrains.kotlin.types.JetType;
 
 import java.util.List;
 
-import static org.jetbrains.kotlin.js.JsPackage.getNameIfStandardType;
+import static org.jetbrains.kotlin.js.descriptors.utils.UtilsPackage.getNameIfStandardType;
 import static org.jetbrains.kotlin.js.patterns.PatternBuilder.pattern;
 import static org.jetbrains.kotlin.js.translate.intrinsic.functions.basic.FunctionIntrinsic.CallParametersAwareFunctionIntrinsic;
 import static org.jetbrains.kotlin.js.translate.utils.ManglingUtils.getStableMangledNameForDescriptor;

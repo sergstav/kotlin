@@ -28,8 +28,8 @@ import org.jetbrains.kotlin.resolve.OverrideResolver;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.jetbrains.kotlin.js.JsPackage.getNameIfStandardType;
-import static org.jetbrains.kotlin.js.JsPackage.getJetTypeFqName;
+import static org.jetbrains.kotlin.js.descriptors.utils.UtilsPackage.getNameIfStandardType;
+import static org.jetbrains.kotlin.js.descriptors.utils.UtilsPackage.getJetTypeFqName;
 
 public final class PatternBuilder {
 
