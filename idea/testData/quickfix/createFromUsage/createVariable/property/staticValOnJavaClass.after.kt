@@ -4,4 +4,3 @@
 fun test() {
     val a: Int = J.foo
 }
-
