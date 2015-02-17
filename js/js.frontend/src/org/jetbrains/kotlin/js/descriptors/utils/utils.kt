@@ -38,9 +38,7 @@ public val JetType.nameIfStandardType: Name?
     }
 
 public fun JetType.getJetTypeFqName(printTypeArguments: Boolean): String {
-    val declaration = getConstructor().getDeclarationDescriptor()
-    assert(declaration != null)
-
+    val declaration = requireNotNull(getConstructor().getDeclarationDescriptor())
     if (declaration is TypeParameterDescriptor) {
         return StringUtil.join(declaration.getUpperBounds(), { (type) -> type.getJetTypeFqName(printTypeArguments) }, "&")
     }
