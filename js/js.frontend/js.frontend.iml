@@ -11,5 +11,7 @@
     <orderEntry type="module" module-name="frontend" />
     <orderEntry type="module" module-name="js.dart-ast" exported="" />
     <orderEntry type="module" module-name="util" />
+    <orderEntry type="module" module-name="js.serializer" />
+    <orderEntry type="module" module-name="serialization" />
   </component>
 </module>
