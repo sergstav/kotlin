@@ -53,4 +53,10 @@ public class JetJsCheckerTestGenerated extends AbstractJetJsCheckerTest {
         String fileName = JetTestUtils.navigationMetadata("idea/testData/checker/js/helloWorld.kt");
         doTest(fileName);
     }
+
+    @TestMetadata("jsCodeError.kt")
+    public void testJsCodeError() throws Exception {
+        String fileName = JetTestUtils.navigationMetadata("idea/testData/checker/js/jsCodeError.kt");
+        doTest(fileName);
+    }
 }
