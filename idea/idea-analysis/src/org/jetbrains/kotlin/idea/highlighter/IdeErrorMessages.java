@@ -127,8 +127,8 @@ public class IdeErrorMessages {
 
         MAP.put(CONFLICTING_JVM_DECLARATIONS, "<html>Platform declaration clash: {0}</html>", HTML_CONFLICTING_JVM_DECLARATIONS_DATA);
         MAP.put(ACCIDENTAL_OVERRIDE, "<html>Accidental override: {0}</html>", HTML_CONFLICTING_JVM_DECLARATIONS_DATA);
-        MAP.put(ErrorsJs.JSCODE_ERROR, "<html>JavaScript: {0}</html>", new JsCallDataHtmlRenderer());
-        MAP.put(ErrorsJs.JSCODE_WARNING, "<html>JavaScript: {0}</html>", new JsCallDataHtmlRenderer());
+        MAP.put(ErrorsJs.JSCODE_ERROR, "<html>JavaScript: {0}</html>", JsCallDataHtmlRenderer.INSTANCE$);
+        MAP.put(ErrorsJs.JSCODE_WARNING, "<html>JavaScript: {0}</html>", JsCallDataHtmlRenderer.INSTANCE$);
         MAP.setImmutable();
     }
 

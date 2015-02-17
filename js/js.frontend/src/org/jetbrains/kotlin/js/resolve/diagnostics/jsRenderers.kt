@@ -21,12 +21,8 @@ import org.jetbrains.kotlin.resolve.diagnostics.JsCallData
 import org.jetbrains.kotlin.resolve.diagnostics.JsCallDataWithCode
 import com.google.gwt.dev.js.rhino.Utils.isEndOfLine
 
-public open class JsCallDataTextRenderer : Renderer<JsCallData> {
-    open protected fun format(data: JsCallDataWithCode): String {
-        val codeRange = data.codeRange
-        val code = data.code.underlineAsText(codeRange.getStartOffset(), codeRange.getEndOffset())
-        return "${data.message} in code:\n${code}"
-    }
+abstract class JsCallDataRenderer : Renderer<JsCallData> {
+    protected abstract fun format(data: JsCallDataWithCode): String
 
     override fun render(data: JsCallData?): String =
             when (data) {
@@ -36,7 +32,15 @@ public open class JsCallDataTextRenderer : Renderer<JsCallData> {
             }
 }
 
-public class JsCallDataHtmlRenderer : JsCallDataTextRenderer() {
+object JsCallDataTextRenderer : JsCallDataRenderer() {
+    override fun format(data: JsCallDataWithCode): String {
+        val codeRange = data.codeRange
+        val code = data.code.underlineAsText(codeRange.getStartOffset(), codeRange.getEndOffset())
+        return "${data.message} in code:\n${code}"
+    }
+}
+
+public object JsCallDataHtmlRenderer : JsCallDataRenderer() {
     override fun format(data: JsCallDataWithCode): String {
         val codeRange = data.codeRange
         val code = data.code.underlineAsHtml(codeRange.getStartOffset(), codeRange.getEndOffset())
