@@ -50,7 +50,6 @@ import org.jetbrains.kotlin.completion.AbstractJvmBasicCompletionTest
 import org.jetbrains.kotlin.completion.AbstractJvmWithLibBasicCompletionTest
 import org.jetbrains.kotlin.idea.navigation.AbstractGotoSuperTest
 import org.jetbrains.kotlin.idea.quickfix.AbstractQuickFixMultiFileTest
-import org.jetbrains.kotlin.idea.highlighter.AbstractHighlightingTest
 import org.jetbrains.kotlin.idea.folding.AbstractKotlinFoldingTest
 import org.jetbrains.kotlin.idea.codeInsight.surroundWith.AbstractSurroundWithTest
 import org.jetbrains.kotlin.idea.intentions.AbstractIntentionTest
@@ -66,7 +65,6 @@ import org.jetbrains.kotlin.idea.resolve.AbstractReferenceResolveWithLibTest
 import org.jetbrains.kotlin.findUsages.AbstractJetFindUsagesTest
 import org.jetbrains.kotlin.idea.configuration.AbstractConfigureProjectByChangingFileTest
 import org.jetbrains.kotlin.formatter.AbstractJetFormatterTest
-import org.jetbrains.kotlin.idea.highlighter.AbstractDiagnosticMessageTest
 import org.jetbrains.kotlin.idea.codeInsight.AbstractOutOfBlockModificationTest
 import org.jetbrains.kotlin.completion.AbstractDataFlowValueRenderingTest
 import org.jetbrains.kotlin.resolve.annotation.AbstractAnnotationParameterTest
@@ -141,9 +139,9 @@ import org.jetbrains.kotlin.completion.handlers.AbstractBasicCompletionHandlerTe
 import org.jetbrains.kotlin.idea.decompiler.stubBuilder.AbstractClsStubBuilderTest
 import org.jetbrains.kotlin.codegen.AbstractLineNumberTest
 import org.jetbrains.kotlin.completion.handlers.AbstractKeywordCompletionHandlerTest
-import org.jetbrains.kotlin.resolve.diagnostics.AbstractJsCallCheckerTest
 import org.jetbrains.kotlin.idea.kdoc.AbstractKDocHighlightingTest
 import org.jetbrains.kotlin.addImport.AbstractAddImportTest
+import org.jetbrains.kotlin.idea.highlighter.*
 
 fun main(args: Array<String>) {
     System.setProperty("java.awt.headless", "true")
@@ -571,7 +569,11 @@ fun main(args: Array<String>) {
         }
 
         testClass(javaClass<AbstractDiagnosticMessageTest>()) {
-            model("diagnosticMessage")
+            model("diagnosticMessage", recursive = false)
+        }
+
+        testClass(javaClass<AbstractDiagnosticMessageJsTest>()) {
+            model("diagnosticMessage/js", recursive = false, targetBackend = TargetBackend.JS)
         }
 
         testClass(javaClass<AbstractRenameTest>()) {
@@ -743,15 +745,6 @@ fun main(args: Array<String>) {
     testGroup("js/js.tests/test", "compiler/testData") {
         testClass(javaClass<AbstractBridgeTest>()) {
             model("codegen/box/bridges", targetBackend = TargetBackend.JS)
-        }
-    }
-
-    testGroup("js/js.tests/test", "js/js.translator/testData/jsCode") {
-        testClass(javaClass<AbstractJsCallCheckerTest>()) {
-            model("underlinePlainText", testMethod = "doUnderlinePlainTextTest", extension = AbstractJsCallCheckerTest.TEST_EXTENSION,
-                  targetBackend = TargetBackend.JS)
-            model("underlineHtml", testMethod = "doUnderlineHtmlTest", extension = AbstractJsCallCheckerTest.TEST_EXTENSION,
-                  targetBackend = TargetBackend.JS)
         }
     }
 }
