@@ -31,7 +31,7 @@ public val JetType.nameIfStandardType: Name?
         val descriptor = getConstructor().getDeclarationDescriptor()
 
         if (descriptor?.getContainingDeclaration() == KotlinBuiltIns.getInstance().getBuiltInsPackageFragment()) {
-            return descriptor.getName()
+            return descriptor?.getName()
         }
 
         return null
