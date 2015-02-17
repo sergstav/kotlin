@@ -23,6 +23,7 @@ import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
+import com.intellij.openapi.ui.popup.Balloon;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import org.jetbrains.annotations.NotNull;
@@ -78,7 +79,7 @@ public class EditSignatureAction extends AnAction {
             //noinspection ConstantConditions
             EditSignatureBalloon balloon = new EditSignatureBalloon(annotationOwner, KotlinSignatureUtil.getKotlinSignature(annotation),
                                                                     editable, annotation.getQualifiedName());
-            balloon.show(point, editor, elementInEditor);
+            balloon.show(point, editor, elementInEditor, Balloon.Position.above);
         }
     }
 }
