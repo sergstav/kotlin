@@ -167,6 +167,8 @@ public class DefaultErrorMessages {
         MAP.put(EXPRESSION_EXPECTED_PACKAGE_FOUND, "Expression expected, but a package name found");
 
         MAP.put(CANNOT_IMPORT_FROM_ELEMENT, "Cannot import from ''{0}''", NAME);
+        //TODO_R: message, star import? object?
+        MAP.put(CANNOT_STAR_IMPORT_FROM_SINGLETON, "Cannot star import from object ''{0}''", NAME);
         MAP.put(CANNOT_BE_IMPORTED, "Cannot import ''{0}'', functions and properties can be imported only from packages", NAME);
         MAP.put(CONFLICTING_IMPORT, "Conflicting import, imported name ''{0}'' is ambiguous", STRING);
         MAP.put(PLATFORM_CLASS_MAPPED_TO_KOTLIN, "This class shouldn''t be used in Kotlin. Use {0} instead.", CLASSES_OR_SEPARATED);
