@@ -582,11 +582,6 @@ public class TypeUtils {
         return false;
     }
 
-    @NotNull
-    public static TypeProjection makeStarProjection(@NotNull TypeParameterDescriptor parameterDescriptor) {
-        return new StarProjectionImpl(parameterDescriptor.getUpperBoundsAsType());
-    }
-
     @Nullable
     public static JetType commonSupertypeForNumberTypes(@NotNull Collection<JetType> numberLowerBounds) {
         if (numberLowerBounds.isEmpty()) return null;

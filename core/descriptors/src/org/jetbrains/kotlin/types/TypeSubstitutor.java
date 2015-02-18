@@ -286,7 +286,7 @@ public class TypeSubstitutor {
                     break;
                 case OUT_IN_IN_POSITION:
                 case IN_IN_OUT_POSITION:
-                    substitutedTypeArgument = TypeUtils.makeStarProjection(typeParameter);
+                    substitutedTypeArgument = StarProjection.INSTANCE$;
                     break;
             }
 

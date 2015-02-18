@@ -16,14 +16,12 @@
 
 package org.jetbrains.kotlin.types
 
-import org.jetbrains.kotlin.descriptors.TypeParameterDescriptor
+import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 
-class StarProjectionImpl(
-        private val _type: JetType
-) : TypeProjectionBase() {
+object StarProjection : TypeProjectionBase() {
     override fun isStarProjection() = true
 
     override fun getProjectionKind() = Variance.OUT_VARIANCE
 
-    override fun getType() = _type
+    override fun getType() = KotlinBuiltIns.getInstance().getNullableAnyType()
 }

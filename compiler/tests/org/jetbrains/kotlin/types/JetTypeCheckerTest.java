@@ -328,6 +328,17 @@ public class JetTypeCheckerTest extends JetLiteFixture {
         assertSubtype("Nothing?", "Derived_T<*>?");
     }
 
+    public void testStars() throws Exception {
+        assertSubtype("SubStar<*>", "Star<*>");
+        assertSubtype("SubStar<SubStar<*>>", "Star<*>");
+        assertSubtype("SubStar<SubStar<*>>", "Star<SubStar<*>>");
+
+        assertSubtype("SubRec<*>", "Rec<*>");
+        assertSubtype("SubRec<*>", "Rec<out Any?>");
+        assertSubtype("Rec<*>", "Rec<out Any?>");
+        assertNotSubtype("Rec<*>", "Rec<out Any>");
+    }
+
     public void testThis() throws Exception {
         assertType("Derived_T<Int>", "this", "Derived_T<Int>");
 //        assertType("Derived_T<Int>", "super<Base_T>", "Base_T<Int>");

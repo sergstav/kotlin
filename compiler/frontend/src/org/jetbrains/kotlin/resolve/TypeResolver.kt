@@ -261,8 +261,7 @@ public class TypeResolver(
             if (projectionKind == JetProjectionKind.STAR) {
                 val parameters = constructor.getParameters()
                 if (parameters.size() > i) {
-                    val parameterDescriptor = parameters[i]
-                    TypeUtils.makeStarProjection(parameterDescriptor)
+                    StarProjection
                 }
                 else {
                     TypeProjectionImpl(OUT_VARIANCE, ErrorUtils.createErrorType("*"))
