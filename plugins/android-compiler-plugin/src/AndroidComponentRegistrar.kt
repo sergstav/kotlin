@@ -167,7 +167,7 @@ public class AndroidExpressionCodegen : ExpressionCodegenExtension {
         if (!isClassSupported(descriptor)) return
 
         val classType = JetTypeMapper(bindingContext, ClassBuilderMode.FULL).mapClass(descriptor)
-        val className = classType.getClassName()
+        val className = classType.getInternalName()
 
         val viewType = Type.getType("Landroid/view/View;")
 
