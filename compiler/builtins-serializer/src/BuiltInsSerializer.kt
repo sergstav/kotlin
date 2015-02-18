@@ -75,9 +75,9 @@ private object BuiltInsSerializerExtension : SerializerExtension() {
             proto.addExtension(BuiltInsProtoBuf.callableAnnotation, AnnotationSerializer.serializeAnnotation(annotation, stringTable))
         }
         val compileTimeConstant = (callable as? PropertyDescriptor)?.getCompileTimeInitializer()
-        if (compileTimeConstant != null && compileTimeConstant !is NullValue) {
+        if (compileTimeConstant != null) {
             val type = compileTimeConstant.getType(KotlinBuiltIns.getInstance())
-            proto.setExtension(BuiltInsProtoBuf.compileTimeValue, AnnotationSerializer.valueProto(compileTimeConstant, type, stringTable).build())
+            proto.setExtension(BuiltInsProtoBuf.compileTimeValue, AnnotationSerializer.valueProto(compileTimeConstant, type, stringTable, false).build())
         }
     }
 

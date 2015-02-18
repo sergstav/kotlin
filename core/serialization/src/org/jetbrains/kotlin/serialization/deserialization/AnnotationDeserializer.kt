@@ -66,7 +66,8 @@ public class AnnotationDeserializer(private val module: ModuleDescriptor) {
     public fun resolveValue(
             expectedType: JetType,
             value: Value,
-            nameResolver: NameResolver
+            nameResolver: NameResolver,
+            canBeUsedInAnnotations: Boolean = true
     ): CompileTimeConstant<*> {
         val result = when (value.getType()) {
             Type.BYTE -> ByteValue(value.getIntValue().toByte(), true, true, true)
@@ -110,12 +111,12 @@ public class AnnotationDeserializer(private val module: ModuleDescriptor) {
                 val expectedElementType = builtIns.getArrayElementType(if (expectedIsArray) expectedType else actualArrayType)
 
                 ArrayValue(
-                        arrayElements.map { resolveValue(expectedElementType, it, nameResolver) },
+                        arrayElements.map { resolveValue(expectedElementType, it, nameResolver, canBeUsedInAnnotations) },
                         actualArrayType,
                         true, true
                 )
             }
-            else -> error("Unsupported annotation argument type: ${value.getType()} (expected $expectedType)")
+            else -> if (!canBeUsedInAnnotations && value.getType() == Type.NULL) NullValue.NULL else error("Unsupported annotation argument type: ${value.getType()} (expected $expectedType)")
         }
 
         if (result.getType(builtIns) isSubtypeOf expectedType) {

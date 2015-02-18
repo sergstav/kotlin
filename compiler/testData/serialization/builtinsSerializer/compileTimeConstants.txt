@@ -9,6 +9,7 @@ internal val enumConst: test.Weapon? = Weapon.ROCK
 internal val floatConst: kotlin.Float = 2.0.toFloat()
 internal val intConst: kotlin.Int = 30
 internal val longConst: kotlin.Long = 40.toLong()
+internal val nullableConst: kotlin.Any? = null
 internal val shortConst: kotlin.Short = 20.toShort()
 internal val stringConst: kotlin.String = "abcd"
 
@@ -23,6 +24,7 @@ internal final class Class {
     internal final val floatConst: kotlin.Float = 2.0.toFloat()
     internal final val intConst: kotlin.Int = 30
     internal final val longConst: kotlin.Long = 40.toLong()
+    internal final val nullableConst: kotlin.Any? = null
     internal final val shortConst: kotlin.Short = 20.toShort()
     internal final val stringConst: kotlin.String = "abcd"
 }

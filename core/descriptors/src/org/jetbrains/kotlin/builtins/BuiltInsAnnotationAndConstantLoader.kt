@@ -65,6 +65,6 @@ class BuiltInsAnnotationAndConstantLoader(
             expectedType: JetType
     ): CompileTimeConstant<*>? {
         val value = proto.getExtension(BuiltInsProtoBuf.compileTimeValue)
-        return deserializer.resolveValue(expectedType, value, nameResolver)
+        return deserializer.resolveValue(expectedType, value, nameResolver, false)
     }
 }

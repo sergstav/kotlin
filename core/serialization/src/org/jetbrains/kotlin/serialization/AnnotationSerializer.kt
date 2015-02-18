@@ -44,7 +44,7 @@ public object AnnotationSerializer {
         }
     }
 
-    fun valueProto(constant: CompileTimeConstant<*>, type: JetType, nameTable: StringTable): Value.Builder = with(Value.newBuilder()) {
+    fun valueProto(constant: CompileTimeConstant<*>, type: JetType, nameTable: StringTable, canBeUsedInAnnotations: Boolean = true): Value.Builder = with(Value.newBuilder()) {
         constant.accept(object : AnnotationArgumentVisitor<Unit, Unit> {
             override fun visitAnnotationValue(value: AnnotationValue, data: Unit) {
                 setType(Type.ANNOTATION)
@@ -110,7 +110,9 @@ public object AnnotationSerializer {
             }
 
             override fun visitNullValue(value: NullValue, data: Unit) {
-                throw UnsupportedOperationException("Null should not appear in annotation arguments")
+                if (canBeUsedInAnnotations) throw UnsupportedOperationException("Null should not appear in annotation arguments")
+
+                setType(Type.NULL)
             }
 
             override fun visitNumberTypeValue(constant: IntegerValueTypeConstant, data: Unit) {
