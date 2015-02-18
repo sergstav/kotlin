@@ -6,6 +6,7 @@ enum class Weapon {
     SCISSORS
 }
 
+val nullableConst: Any? = null
 val byteConst: Byte = 10
 val shortConst: Short = 20
 val intConst: Int = 30
@@ -19,6 +20,7 @@ val enumConst: Weapon? = Weapon.ROCK
 val arrayConst: Any = byteArray(1,2)
 
 class Class {
+    val nullableConst: Any? = null
     val byteConst: Byte = 10
     val shortConst: Short = 20
     val intConst: Int = 30

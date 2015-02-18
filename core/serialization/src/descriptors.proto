@@ -60,6 +60,7 @@ message Annotation {
         ENUM = 10;
         ANNOTATION = 11;
         ARRAY = 12;
+        NULL=13;
       }
 
       // Note: a *Value* has a Type, not an Argument! This is done for future language features which may involve using arrays

@@ -2257,6 +2257,10 @@ public final class ProtoBuf {
            * <code>ARRAY = 12;</code>
            */
           ARRAY(12, 12),
+          /**
+           * <code>NULL = 13;</code>
+           */
+          NULL(13, 13),
           ;
 
           /**
@@ -2311,6 +2315,10 @@ public final class ProtoBuf {
            * <code>ARRAY = 12;</code>
            */
           public static final int ARRAY_VALUE = 12;
+          /**
+           * <code>NULL = 13;</code>
+           */
+          public static final int NULL_VALUE = 13;
 
 
           public final int getNumber() { return value; }
@@ -2330,6 +2338,7 @@ public final class ProtoBuf {
               case 10: return ENUM;
               case 11: return ANNOTATION;
               case 12: return ARRAY;
+              case 13: return NULL;
               default: return null;
             }
           }
