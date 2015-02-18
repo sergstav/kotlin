@@ -3,7 +3,7 @@ package kotlin
 import java.lang.annotation.Retention
 import java.lang.annotation.RetentionPolicy
 import kotlin.jvm.internal.unsafe.*
-import kotlin.jvm.internal.Intrinsic
+import kotlin.internal.Intrinsic
 
 /**
  * This annotation indicates what exceptions should be declared by a function when compiled to a JVM method

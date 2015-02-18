@@ -16,7 +16,7 @@
 
 package kotlin.jvm.internal.unsafe
 
-import kotlin.jvm.internal.Intrinsic
+import kotlin.internal.Intrinsic
 
 [Intrinsic("kotlin.jvm.internal.unsafe.monitorEnter")]
 public fun monitorEnter(monitor: Any): Unit = throw UnsupportedOperationException("This function can only be used privately")

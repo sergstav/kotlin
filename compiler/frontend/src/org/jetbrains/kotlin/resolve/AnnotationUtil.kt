@@ -32,7 +32,7 @@ public fun DeclarationDescriptor.hasPlatformStaticAnnotation(): Boolean {
 }
 
 public fun DeclarationDescriptor.hasIntrinsicAnnotation(): Boolean {
-    return getAnnotations().findAnnotation(FqName("kotlin.jvm.internal.Intrinsic")) != null
+    return getAnnotations().findAnnotation(FqName("kotlin.internal.Intrinsic")) != null
 }
 
 public fun CallableDescriptor.isPlatformStaticInObjectOrClass(): Boolean =

@@ -3,7 +3,7 @@ package kotlin
 import java.io.ByteArrayInputStream
 import java.nio.charset.Charset
 import java.util.Arrays
-import kotlin.jvm.internal.Intrinsic
+import kotlin.internal.Intrinsic
 
 // Array "constructor"
 /**

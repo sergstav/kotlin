@@ -101,7 +101,7 @@ public class CompileTimeConstantUtils {
     @Nullable
     public static String getIntrinsicAnnotationArgument(@NotNull Annotated annotatedDescriptor) {
         AnnotationDescriptor intrinsicAnnotation =
-                annotatedDescriptor.getAnnotations().findAnnotation(new FqName("kotlin.jvm.internal.Intrinsic"));
+                annotatedDescriptor.getAnnotations().findAnnotation(new FqName("kotlin.internal.Intrinsic"));
         if (intrinsicAnnotation == null) return null;
 
         Collection<CompileTimeConstant<?>> values = intrinsicAnnotation.getAllValueArguments().values();

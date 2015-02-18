@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package kotlin.jvm.internal
+package kotlin.internal
 
 import java.lang.annotation.*
 

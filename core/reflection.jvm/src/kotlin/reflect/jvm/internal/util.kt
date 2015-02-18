@@ -17,7 +17,7 @@
 package kotlin.reflect.jvm.internal
 
 import java.lang.reflect.Method
-import kotlin.jvm.internal.Intrinsic
+import kotlin.internal.Intrinsic
 
 // TODO: use stdlib?
 suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
