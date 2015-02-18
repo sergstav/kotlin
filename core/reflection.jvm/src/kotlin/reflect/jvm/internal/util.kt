@@ -17,6 +17,12 @@
 package kotlin.reflect.jvm.internal
 
 import java.lang.reflect.Method
+import org.jetbrains.kotlin.serialization.deserialization.NameResolver
+import org.jetbrains.kotlin.serialization.jvm.JvmProtoBuf
+import org.jetbrains.kotlin.serialization.jvm.JvmProtoBuf.JvmType.PrimitiveType.*
+import kotlin.reflect.KotlinReflectionInternalError
+import java.lang.reflect.Array
+import java.lang.reflect.Field
 
 private fun String.capitalizeWithJavaBeanConvention(): String {
     if (length() > 1 && Character.isUpperCase(this[1])) return this
@@ -35,4 +41,73 @@ private fun Class<*>.getMaybeDeclaredMethod(name: String, vararg parameterTypes:
         // This is needed to support private methods
         return getDeclaredMethod(name, *parameterTypes)
     }
+}
+
+
+// TODO: should we check resulting method's return type?
+private fun <T> KClassImpl<T>.findMethodBySignature(signature: JvmProtoBuf.JvmMethodSignature, nameResolver: NameResolver): Method? {
+    val name = nameResolver.getString(signature.getName())
+    val parameterTypes = signature.getParameterTypeList().map { jvmType ->
+        loadJvmType(jvmType, nameResolver, jClass.getClassLoader() ?: ClassLoader.getSystemClassLoader())
+    }.copyToArray()
+    return try {
+        jClass.getMaybeDeclaredMethod(name, *parameterTypes)
+    }
+    catch (e: NoSuchMethodException) {
+        null
+    }
+}
+
+// TODO: should we check resulting field's type?
+private fun <T> KClassImpl<T>.findFieldBySignature(signature: JvmProtoBuf.JvmFieldSignature, nameResolver: NameResolver): Field? {
+    val name = nameResolver.getString(signature.getName())
+    val owner =
+            if (signature.getIsStaticInOuter())
+                jClass.getEnclosingClass()
+                ?: throw KotlinReflectionInternalError("Inconsistent metadata for field $name in $jClass")
+            else jClass
+
+    return try {
+        owner.getDeclaredField(name)
+    }
+    catch (e: NoSuchMethodException) {
+        null
+    }
+}
+
+
+private val PRIMITIVE_TYPES = mapOf(
+        VOID to Void.TYPE,
+        BOOLEAN to java.lang.Boolean.TYPE,
+        CHAR to java.lang.Character.TYPE,
+        BYTE to java.lang.Byte.TYPE,
+        SHORT to java.lang.Short.TYPE,
+        INT to java.lang.Integer.TYPE,
+        FLOAT to java.lang.Float.TYPE,
+        LONG to java.lang.Long.TYPE,
+        DOUBLE to java.lang.Double.TYPE
+)
+
+private fun loadJvmType(
+        type: JvmProtoBuf.JvmType,
+        nameResolver: NameResolver,
+        classLoader: ClassLoader,
+        arrayDimension: Int = type.getArrayDimension()
+): Class<*> {
+    if (arrayDimension > 0) {
+        // TODO: test multi-dimensional arrays
+        return Array.newInstance(loadJvmType(type, nameResolver, classLoader, arrayDimension - 1), 0).javaClass
+    }
+
+    if (type.hasPrimitiveType()) {
+        return PRIMITIVE_TYPES[type.getPrimitiveType()]
+               ?: throw KotlinReflectionInternalError("Unknown primitive type: ${type.getPrimitiveType()}")
+    }
+
+    if (type.hasClassFqName()) {
+        val fqName = nameResolver.getFqName(type.getClassFqName())
+        return classLoader.loadClass(fqName.asString())
+    }
+
+    throw KotlinReflectionInternalError("Inconsistent metadata for JVM type")
 }

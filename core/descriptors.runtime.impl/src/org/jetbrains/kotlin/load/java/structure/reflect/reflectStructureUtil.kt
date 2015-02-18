@@ -47,9 +47,16 @@ fun findAnnotation(annotations: Array<Annotation>, fqName: FqName): ReflectJavaA
     return null
 }
 
-// TODO: can there be primitive types, arrays? Anonymous classes which don't have a FqName?
+// TODO: can there be primitive types, arrays?
+// TODO: verify if call sites need FQ names for local/anonymous classes
 public val Class<*>.fqName: FqName
-    get() = getDeclaringClass()?.fqName?.child(Name.identifier(getSimpleName())) ?: FqName(getName())
+    get() {
+        if (getEnclosingMethod() != null || getEnclosingConstructor() != null) return FqName(getName())
+        return getDeclaringClass()?.fqName?.child(Name.identifier(getSimpleName())) ?: FqName(getName())
+    }
 
 val Class<*>.classId: ClassId
-    get() = getDeclaringClass()?.classId?.createNestedClassId(Name.identifier(getSimpleName())) ?: ClassId.topLevel(FqName(getName()))
+    get() {
+        if (getEnclosingMethod() != null || getEnclosingConstructor() != null) return ClassId.topLevel(FqName(getName()))
+        return getDeclaringClass()?.classId?.createNestedClassId(Name.identifier(getSimpleName())) ?: ClassId.topLevel(FqName(getName()))
+    }

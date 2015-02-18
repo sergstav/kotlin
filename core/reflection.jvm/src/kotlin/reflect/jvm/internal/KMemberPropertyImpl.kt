@@ -18,6 +18,12 @@ package kotlin.reflect.jvm.internal
 
 import java.lang.reflect.*
 import kotlin.reflect.*
+import org.jetbrains.kotlin.name.Name
+import org.jetbrains.kotlin.descriptors.PropertyDescriptor
+import org.jetbrains.kotlin.serialization.deserialization.descriptors.DeserializedPropertyDescriptor
+import org.jetbrains.kotlin.resolve.DescriptorUtils
+import org.jetbrains.kotlin.serialization.jvm.JvmProtoBuf
+import org.jetbrains.kotlin.serialization.deserialization.NameResolver
 
 // TODO: properties of built-in classes
 
@@ -25,30 +31,51 @@ open class KMemberPropertyImpl<T : Any, out R>(
         override val name: String,
         protected val owner: KClassImpl<T>
 ) : KMemberProperty<T, R>, KPropertyImpl<R> {
-    // TODO: extract, make lazy (weak?), use our descriptors knowledge
-    override val field: Field?
-    override val getter: Method?
+    val descriptor: PropertyDescriptor by ReflectProperties.lazySoft {
+        // TODO: get correct type arguments
+        val properties = owner.descriptor.getDefaultType().getMemberScope().getProperties(Name.identifier(name))
+        if (properties.size() != 1) {
+            throw KotlinReflectionInternalError(
+                    if (properties.isEmpty()) "Member property $name not resolved in $owner"
+                    else "${properties.size()} member properties with name $name resolved in $owner"
+            )
+        }
+        properties.iterator().next() as PropertyDescriptor
+    }
 
-    {
-        try {
-            field = owner.jClass.getDeclaredField(name)
-        }
-        catch (e: NoSuchFieldException) {
-            field = null
-        }
+    // TODO: extract, use our descriptors knowledge
+    override val field: Field? by ReflectProperties.lazySoft {
+        val (signature, nameResolver) = protoData
+        if (!signature.hasField()) null
+        else owner.findFieldBySignature(signature.getField(), nameResolver)
+    }
 
-        try {
-            getter = owner.jClass.getMaybeDeclaredMethod(getterName(name))
+    override val getter: Method? by ReflectProperties.lazySoft {
+        val (signature, nameResolver) = protoData
+        if (!signature.hasGetter()) null
+        else owner.findMethodBySignature(signature.getGetter(), nameResolver)
+    }
+
+    data class PropertyProtoData(val signature: JvmProtoBuf.JvmPropertySignature, val nameResolver: NameResolver)
+
+    protected val protoData: PropertyProtoData by ReflectProperties.lazyWeak {
+        val property = DescriptorUtils.unwrapFakeOverride(descriptor) as? DeserializedPropertyDescriptor
+                       ?: throw KotlinReflectionInternalError("Member property resolved incorrectly: $descriptor")
+        if (!property.proto.hasExtension(JvmProtoBuf.propertySignature)) {
+            throw KotlinReflectionInternalError("Member property lacks JVM signature: $descriptor")
         }
-        catch (e: NoSuchMethodException) {
-            if (field == null) throw NoSuchPropertyException(e)
-            getter = null
-        }
+        PropertyProtoData(property.proto.getExtension(JvmProtoBuf.propertySignature), property.nameResolver)
+    }
+
+    ;{
+        // TODO: this compromises laziness, consider not doing it on creation and instead support isValid()
+        if (field == null && getter == null) throw NoSuchPropertyException()
     }
 
     override fun get(receiver: T): R {
         try {
-            return (if (getter != null) getter!!(receiver) else field!!.get(receiver)) as R
+            val getter = getter
+            return (if (getter != null) getter(receiver) else field!!.get(receiver)) as R
         }
         catch (e: java.lang.IllegalAccessException) {
             throw kotlin.reflect.IllegalAccessException(e)
@@ -66,26 +93,26 @@ open class KMemberPropertyImpl<T : Any, out R>(
             "val ${owner.jClass.getName()}.$name"
 }
 
+
 class KMutableMemberPropertyImpl<T : Any, R>(
         name: String,
         owner: KClassImpl<T>
 ) : KMutableMemberProperty<T, R>, KMutablePropertyImpl<R>, KMemberPropertyImpl<T, R>(name, owner) {
-    override val setter: Method?
+    override val setter: Method? by ReflectProperties.lazySoft {
+        val (signature, nameResolver) = protoData
+        if (!signature.hasSetter()) null
+        else owner.findMethodBySignature(signature.getSetter(), nameResolver)
+    }
 
-    {
-        try {
-            val returnType = if (getter != null) getter.getReturnType() else field!!.getType()
-            setter = owner.jClass.getMaybeDeclaredMethod(setterName(name), returnType)
-        }
-        catch (e: NoSuchMethodException) {
-            if (field == null) throw NoSuchPropertyException(e)
-            setter = null
-        }
+    ;{
+        // TODO: this compromises laziness, consider not doing it on creation and instead support isValid()
+        if (field == null && setter == null) throw NoSuchPropertyException()
     }
 
     override fun set(receiver: T, value: R) {
         try {
-            if (setter != null) setter!!(receiver, value) else field!!.set(receiver, value)
+            val setter = setter
+            if (setter != null) setter(receiver, value) else field!!.set(receiver, value)
         }
         catch (e: java.lang.IllegalAccessException) {
             throw kotlin.reflect.IllegalAccessException(e)
