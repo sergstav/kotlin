@@ -44,6 +44,11 @@ import junit.framework.TestCase
 import org.jetbrains.kotlin.jps.incremental.getKotlinCache
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
+import org.jetbrains.jps.incremental.IncProjectBuilder
+import org.jetbrains.jps.builders.BuildResult
+import org.jetbrains.jps.incremental.BuilderRegistry
+import org.jetbrains.jps.api.CanceledStatus
+import org.jetbrains.jps.builders.java.dependencyView.Callbacks
 
 public abstract class AbstractIncrementalJpsTest : JpsBuildTestCase() {
     class object {
@@ -67,15 +72,22 @@ public abstract class AbstractIncrementalJpsTest : JpsBuildTestCase() {
         super.tearDown()
     }
 
-    protected open val customTest: Boolean
+    protected open val allowNoFilesWithSuffixInTestData: Boolean
         get() = false
+
+    protected open val mockConstantSearch: Callbacks.ConstantAffectionResolver?
+        get() = null
 
     fun build(scope: CompileScopeTestBuilder = CompileScopeTestBuilder.make().all()): MakeResult {
         val workDirPath = FileUtil.toSystemIndependentName(workDir.getAbsolutePath())
         val logger = MyLogger(workDirPath)
         val descriptor = createProjectDescriptor(BuildLoggingManager(logger))
         try {
-            val buildResult = doBuild(descriptor, scope)!!
+            val builder = IncProjectBuilder(descriptor, BuilderRegistry.getInstance(), myBuildParams, CanceledStatus.NULL, mockConstantSearch, true)
+            val buildResult = BuildResult()
+            builder.addMessageHandler(buildResult)
+            builder.build(scope.build(), false)
+
             if (!buildResult.isSuccessful()) {
                 val errorMessages =
                         buildResult
@@ -147,7 +159,7 @@ public abstract class AbstractIncrementalJpsTest : JpsBuildTestCase() {
             fail("Bad test data format: files ending with both unnumbered and numbered \".new\"/\".delete\" were found")
         }
         if (!haveFilesWithoutNumbers && !haveFilesWithNumbers) {
-            if (customTest) {
+            if (allowNoFilesWithSuffixInTestData) {
                 return listOf(listOf())
             }
             else {
