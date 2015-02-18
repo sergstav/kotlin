@@ -23,8 +23,6 @@ import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.psi.Call
 import org.jetbrains.kotlin.resolve.calls.context.BasicCallResolutionContext
 import org.jetbrains.kotlin.resolve.calls.smartcasts.SmartCastUtils
-import org.jetbrains.kotlin.resolve.calls.tasks.collectors.CallableDescriptorCollector
-import org.jetbrains.kotlin.resolve.calls.tasks.collectors.CallableDescriptorCollectors
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.resolve.scopes.JetScope
 import org.jetbrains.kotlin.resolve.scopes.JetScopeUtils
@@ -41,6 +39,7 @@ import org.jetbrains.kotlin.resolve.calls.tasks.ExplicitReceiverKind.*
 import org.jetbrains.kotlin.resolve.scopes.receivers.ReceiverValue.NO_RECEIVER
 import org.jetbrains.kotlin.resolve.*
 import org.jetbrains.kotlin.resolve.calls.util.*
+import org.jetbrains.kotlin.resolve.calls.tasks.collectors.*
 
 public class TaskPrioritizer(private val storageManager: StorageManager) {
 
@@ -78,7 +77,9 @@ public class TaskPrioritizer(private val storageManager: StorageManager) {
                 val classifierDescriptor = qualifierReceiver.classifier
                 if (classifierDescriptor is ClassDescriptor && (classifierDescriptor.getDefaultObjectDescriptor() != null
                                                                 || classifierDescriptor.getKind() == ClassKind.ENUM_ENTRY)) {
-                    doComputeTasks(classObjectReceiver, filterOutConstructorsAndObjects(taskPrioritizerContext))
+                    doComputeTasks(classObjectReceiver, taskPrioritizerContext.filterCollectors {
+                        it !is ConstructorDescriptor && it !is FakeCallableDescriptorForObject
+                    })
                 }
                 else {
                     doComputeTasks(classObjectReceiver, taskPrioritizerContext)
@@ -90,36 +91,6 @@ public class TaskPrioritizer(private val storageManager: StorageManager) {
         }
 
         return result.getTasks()
-    }
-
-    private fun <D : CallableDescriptor, F : D> filterOutConstructorsAndObjects(taskPrioritizerContext: TaskPrioritizerContext<D, F>): TaskPrioritizerContext<D, F> {
-        val newCollectors = CallableDescriptorCollectors(*taskPrioritizerContext.callableDescriptorCollectors.toList().map {
-            original ->
-
-            fun Collection<D>.filterOutClasses(): Collection<D> {
-                return filter { it !is ConstructorDescriptor && it !is FakeCallableDescriptorForObject }
-            }
-
-            object : CallableDescriptorCollector<D> {
-                override fun getNonExtensionsByName(scope: JetScope, name: Name, bindingTrace: BindingTrace): Collection<D> {
-                    return original.getNonExtensionsByName(scope, name, bindingTrace).filterOutClasses()
-                }
-
-                override fun getMembersByName(receiver: JetType, name: Name, bindingTrace: BindingTrace): Collection<D> {
-                    return original.getMembersByName(receiver, name, bindingTrace).filterOutClasses()
-                }
-
-                override fun getStaticMembersByName(receiver: JetType, name: Name, bindingTrace: BindingTrace): Collection<D> {
-                    return original.getStaticMembersByName(receiver, name, bindingTrace).filterOutClasses()
-                }
-
-                override fun getExtensionsByName(scope: JetScope, name: Name, bindingTrace: BindingTrace): Collection<D> {
-                    return original.getExtensionsByName(scope, name, bindingTrace).filterOutClasses()
-                }
-
-            }
-        }.copyToArray())
-        return taskPrioritizerContext.replaceCollectors(newCollectors)
     }
 
     private fun <D : CallableDescriptor, F : D> doComputeTasks(receiver: ReceiverValue, c: TaskPrioritizerContext<D, F>) {
@@ -466,6 +437,10 @@ public class TaskPrioritizer(private val storageManager: StorageManager) {
 
         fun replaceCollectors(newCollectors: CallableDescriptorCollectors<D>): TaskPrioritizerContext<D, F> {
             return TaskPrioritizerContext(name, result, context, scope, newCollectors)
+        }
+
+        fun filterCollectors(filter: (D) -> Boolean): TaskPrioritizerContext<D, F> {
+            return TaskPrioritizerContext(name, result, context, scope, callableDescriptorCollectors.filtered(filter))
         }
     }
 }
