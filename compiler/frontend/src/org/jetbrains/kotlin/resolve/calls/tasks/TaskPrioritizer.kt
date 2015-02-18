@@ -39,6 +39,8 @@ import org.jetbrains.kotlin.resolve.calls.context.ResolutionContext
 import org.jetbrains.kotlin.resolve.calls.CallResolverUtil.isOrOverridesSynthesized
 import org.jetbrains.kotlin.resolve.calls.tasks.ExplicitReceiverKind.*
 import org.jetbrains.kotlin.resolve.scopes.receivers.ReceiverValue.NO_RECEIVER
+import org.jetbrains.kotlin.resolve.*
+import org.jetbrains.kotlin.resolve.calls.util.*
 
 public class TaskPrioritizer(private val storageManager: StorageManager) {
 
@@ -73,7 +75,14 @@ public class TaskPrioritizer(private val storageManager: StorageManager) {
             doComputeTasks(NO_RECEIVER, taskPrioritizerContext.replaceScope(qualifierReceiver.getNestedClassesAndPackageMembersScope()))
             val classObjectReceiver = qualifierReceiver.getClassObjectReceiver()
             if (classObjectReceiver.exists()) {
-                doComputeTasks(classObjectReceiver, taskPrioritizerContext)
+                val classifierDescriptor = qualifierReceiver.classifier
+                if (classifierDescriptor is ClassDescriptor && (classifierDescriptor.getDefaultObjectDescriptor() != null
+                                                                || classifierDescriptor.getKind() == ClassKind.ENUM_ENTRY)) {
+                    doComputeTasks(classObjectReceiver, filterOutConstructorsAndObjects(taskPrioritizerContext))
+                }
+                else {
+                    doComputeTasks(classObjectReceiver, taskPrioritizerContext)
+                }
             }
         }
         else {
@@ -81,6 +90,36 @@ public class TaskPrioritizer(private val storageManager: StorageManager) {
         }
 
         return result.getTasks()
+    }
+
+    private fun <D : CallableDescriptor, F : D> filterOutConstructorsAndObjects(taskPrioritizerContext: TaskPrioritizerContext<D, F>): TaskPrioritizerContext<D, F> {
+        val newCollectors = CallableDescriptorCollectors(*taskPrioritizerContext.callableDescriptorCollectors.toList().map {
+            original ->
+
+            fun Collection<D>.filterOutClasses(): Collection<D> {
+                return filter { it !is ConstructorDescriptor && it !is FakeCallableDescriptorForObject }
+            }
+
+            object : CallableDescriptorCollector<D> {
+                override fun getNonExtensionsByName(scope: JetScope, name: Name, bindingTrace: BindingTrace): Collection<D> {
+                    return original.getNonExtensionsByName(scope, name, bindingTrace).filterOutClasses()
+                }
+
+                override fun getMembersByName(receiver: JetType, name: Name, bindingTrace: BindingTrace): Collection<D> {
+                    return original.getMembersByName(receiver, name, bindingTrace).filterOutClasses()
+                }
+
+                override fun getStaticMembersByName(receiver: JetType, name: Name, bindingTrace: BindingTrace): Collection<D> {
+                    return original.getStaticMembersByName(receiver, name, bindingTrace).filterOutClasses()
+                }
+
+                override fun getExtensionsByName(scope: JetScope, name: Name, bindingTrace: BindingTrace): Collection<D> {
+                    return original.getExtensionsByName(scope, name, bindingTrace).filterOutClasses()
+                }
+
+            }
+        }.copyToArray())
+        return taskPrioritizerContext.replaceCollectors(newCollectors)
     }
 
     private fun <D : CallableDescriptor, F : D> doComputeTasks(receiver: ReceiverValue, c: TaskPrioritizerContext<D, F>) {
